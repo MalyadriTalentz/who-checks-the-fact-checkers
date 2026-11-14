@@ -1,0 +1,54 @@
+# Who checks the fact-checkers?
+
+An independent reliability audit of AI-written Community Notes on X.
+Entry for the Apart Research AI x Epistemics Research Sprint, 13 to 15 November 2026
+(Track 4: Open Track; Track 2: Trust Infrastructure). Author: Malyadri Chowdary Marneni.
+
+AI note writers now write about three in ten Community Notes. Published comparisons score them by
+how often raters mark their notes Helpful. This project measures two things the ratings do not:
+whether a note keeps its Helpful status, and whether the sources it cites support what it says.
+
+Results are in `results/` and the report. The plan was fixed in advance in [`PREREG.md`](PREREG.md);
+every change since is in [`DEVIATIONS.md`](DEVIATIONS.md).
+
+## What is new and what is pre-existing
+
+**Nothing is pre-existing.** All code, the pre-registration, the sample, the judgments and the
+analysis were produced during the sprint; the first commit is the frozen pre-registration. The data
+is X's public Community Notes release. Code and drafting used an AI assistant (Claude Code); the
+author is responsible for everything here.
+
+## Layout
+
+| Path | What it is |
+|---|---|
+| `PREREG.md`, `DEVIATIONS.md` | Hypotheses and methods frozen before any outcome data was read; dated log of changes |
+| `analysis/part1.py` | Status outcomes for every note in the window (Part 1); also the per-writer table |
+| `audit/sample.py`, `audit/sample.csv` | The 800-note sample: 400 same-post pairs of AI and human Helpful notes |
+| `audit/fetch.py`, `audit/fetch_log.csv` | Fetches each cited link (live, then Internet Archive) and logs the outcome |
+| `audit/judge_prompt.md`, `audit/judge.py` | The frozen judge prompt and the runner |
+| `audit/judgments/`, `audit/control/` | Every judge reply, for the real pairs and for the mismatched-page negative control |
+| `analysis/part2.py` | Citation support and rater blindness (Parts 2 and 3) |
+| `results/` | Every number used in the report |
+
+## Reproduce
+
+Python 3.11 or newer, with `duckdb` and `numpy`.
+
+```sh
+python3 -m venv .venv && .venv/bin/pip install duckdb numpy
+# 1. Download the 2026-11-14 snapshot (notes, noteStatusHistory, userEnrollment) into data/raw/ and unzip:
+#    https://ton.twimg.com/birdwatch-public-data/2026/11/14/{notes,noteStatusHistory,userEnrollment}/...
+# 2. Rebuild every number from the snapshot and the committed judgments:
+./run_all.sh
+```
+
+`analysis/part1.py <dir>` runs unchanged on any other day's snapshot, so the per-writer reliability
+table can be refreshed daily. Re-drawing the sample, re-fetching pages and re-judging are the slower
+steps (`audit/sample.py`, `audit/fetch.py`, `audit/judge.py`); their outputs are committed so the
+analysis does not depend on them.
+
+## Data handling
+
+Notes are public. Writer and rater identifiers are the hashed ids X publishes, shown truncated. This
+repository holds note ids, derived labels and short quoted passages, not bulk note text or ratings.
