@@ -28,3 +28,11 @@ directory). The prompt is unchanged (`audit/judge_prompt.md`, commit `8f4dbcc`).
 be set through these clients, so judgments use each client's default sampling instead of the
 pre-registered temperature 0. The 14 judgments from the OpenRouter mechanics pilot were discarded
 unread except for label counts used to debug the runner; every pair is judged afresh.
+
+## D3 (2026-11-15): a third judge added as a robustness check
+
+The sprint sponsor's API (Adaption) became available after the freeze. **Judge C `qwen3.5-397b`**,
+an open-weights model from a third vendor, run at temperature 0 with the same prompt, is added.
+Decided before any judgment was tabulated by author type. The pre-registered primary H3 estimate is
+unchanged (notes where Judges A and B agree). Judge C is used only for (i) a majority-of-three
+estimate reported next to the primary one and (ii) agreement statistics against the human labels.

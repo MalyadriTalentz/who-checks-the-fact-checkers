@@ -4,7 +4,7 @@ Usage: python audit/judge.py claude-cli/sonnet codex-cli/gpt-5.6-terra [--limit 
 Writes audit/judgments/<model>/<noteId>__<url sha1>.json (raw reply + parsed label). Resumable.
 Judges never see whether a note is AI- or human-written.
 """
-import hashlib, json, pathlib, re, subprocess, sys, tempfile, time
+import hashlib, json, os, pathlib, re, subprocess, sys, tempfile, time, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
 PROMPT = pathlib.Path("audit/judge_prompt.md").read_text()
@@ -17,6 +17,18 @@ def ask(model, user):
     No tools are given to the Claude client; the Codex client runs read-only in an empty directory."""
     for attempt in range(3):
         try:
+            if model.startswith("adaption/"):  # sponsor API, temperature 0; reads ADAPTION_API_KEY from the environment
+                req = urllib.request.Request("https://api.prod.adaptionlabs.ai/api/v1/responses", json.dumps({
+                    "model": model.split("/")[1], "instructions": PROMPT, "input": user, "temperature": 0,
+                    "max_output_tokens": 4000}).encode(), {"Authorization": "Bearer " + os.environ["ADAPTION_API_KEY"],
+                                                           "Content-Type": "application/json"})
+                with urllib.request.urlopen(req, timeout=300) as r:
+                    d = json.loads(r.read())
+                text = "".join(c.get("text", "") for o in d.get("output", []) if o.get("type") == "message"
+                               for c in (o.get("content") or []) if isinstance(c, dict))
+                if not text:
+                    raise RuntimeError(f"empty reply, status {d.get('status')}")
+                return {"choices": [{"message": {"content": text}}], "usage": d.get("usage")}
             if model.startswith("claude-cli/"):
                 r = subprocess.run(["claude", "-p", "--model", model.split("/")[1], "--system-prompt", PROMPT, "--tools", "",
                                     "--strict-mcp-config", "--no-session-persistence", "--setting-sources", "", "--output-format", "json"],
