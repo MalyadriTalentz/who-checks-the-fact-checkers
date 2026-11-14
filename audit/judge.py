@@ -50,7 +50,7 @@ def ask(model, user):
 
 def judge(job):
     model, note, page, post = job
-    out = pathlib.Path("audit/judgments") / model.replace("/", "__") / f"{note['noteId']}__{hashlib.sha1(page['url'].encode()).hexdigest()[:12]}.json"
+    out = pathlib.Path(OUT_DIR) / model.replace("/", "__") / f"{note['noteId']}__{hashlib.sha1(page['url'].encode()).hexdigest()[:12]}.json"
     if out.exists():
         return
     user = (f"POST:\n{post or '(not available)'}\n\nNOTE:\n{note['summary']}\n\n"
@@ -75,12 +75,38 @@ def judge(job):
     out.write_text(json.dumps(rec))
 
 
+OUT_DIR = "audit/judgments"
+
+
+def control_jobs(notes, models, n):
+    """Negative control (DEVIATIONS D4): each note is paired with a readable page cited by a note on a different post.
+    A sound judge should almost never call such a page support, so the SUPPORTS/PARTIAL share here is its false-support rate."""
+    h = lambda x: hashlib.md5((x + "control20261115").encode()).hexdigest()
+    pages = []
+    for nt in notes:
+        for u in dict.fromkeys(nt["urls"]):
+            pg = json.loads(pathlib.Path("cache/pages/" + hashlib.sha1(u.encode()).hexdigest() + ".json").read_text())
+            if pg["status"] == "ok":
+                pages.append((nt["tweetId"], pg))
+    pages.sort(key=lambda tp: h(tp[1]["url"]))
+    jobs = []
+    for i, nt in enumerate(sorted(notes, key=lambda x: h(x["noteId"]))[:n]):
+        tweet, pg = next(tp for tp in pages[i * 7 % len(pages):] + pages if tp[0] != nt["tweetId"])
+        post = json.loads(pathlib.Path(f"cache/posts/{nt['tweetId']}.json").read_text())["text"]
+        jobs += [(m, nt, pg, post) for m in models]
+    return jobs
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
     limit = int(args[args.index("--limit") + 1]) if "--limit" in args else None
     models = [a for a in args if "/" in a]
     notes = [json.loads(l) for l in open("cache/sample_text.jsonl")][:limit]
     jobs = []
+    if "--control" in args:
+        OUT_DIR = "audit/control"
+        jobs = control_jobs(notes, models, int(args[args.index("--control") + 1]))
+        notes = []
     for n in notes:
         post = json.loads(pathlib.Path(f"cache/posts/{n['tweetId']}.json").read_text())["text"]
         for u in dict.fromkeys(n["urls"]):
@@ -88,5 +114,5 @@ if __name__ == "__main__":
             if page["status"] == "ok":
                 jobs += [(m, n, page, post) for m in models]
     print(len(jobs), "judgments to make (cached ones are skipped)")
-    with ThreadPoolExecutor(4) as ex:
+    with ThreadPoolExecutor(int(os.environ.get("JUDGE_WORKERS", 4))) as ex:
         list(ex.map(judge, jobs))

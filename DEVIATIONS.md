@@ -36,3 +36,10 @@ an open-weights model from a third vendor, run at temperature 0 with the same pr
 Decided before any judgment was tabulated by author type. The pre-registered primary H3 estimate is
 unchanged (notes where Judges A and B agree). Judge C is used only for (i) a majority-of-three
 estimate reported next to the primary one and (ii) agreement statistics against the human labels.
+
+## D4 (2026-11-15): negative control for the judges added
+
+Added before any citation result was tabulated. 150 sampled notes are each paired with a readable
+page cited by a note on a different post, and judged with the same prompt by all three judges. A
+sound judge should label almost none of these SUPPORTS or PARTIAL, so that share is reported as each
+judge's false-support rate. This is an extra validity check; it changes no pre-registered outcome.
