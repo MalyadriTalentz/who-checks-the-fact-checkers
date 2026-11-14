@@ -11,3 +11,9 @@ those Grok-drafted notes in the human group. The rule is now: any author with at
 collaborative surviving notes, whatever its enrollment state. Found on the first run of
 `analysis/part1.py`, from a count of notes by collaborative flag and enrollment state; the exclusion
 itself was pre-registered, only the way of finding the account changed.
+
+## Judge models (recorded 2026-11-15, before the main judging run)
+
+Judge A: `anthropic/claude-sonnet-5.5`. Judge B: `google/gemini-3.8-flash`. Both through OpenRouter,
+temperature 0, `max_tokens` 2000, prompt `audit/judge_prompt.md` as committed in `8f4dbcc`.
+A ten-note mechanics pilot ran first; its judgments are kept and are part of the main run (same prompt, same models).

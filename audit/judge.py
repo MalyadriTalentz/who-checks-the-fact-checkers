@@ -13,7 +13,7 @@ norm = lambda s: re.sub(r"\W+", " ", s).lower().strip()
 
 
 def ask(model, user):
-    body = json.dumps({"model": model, "temperature": 0, "max_tokens": 600,
+    body = json.dumps({"model": model, "temperature": 0, "max_tokens": 2000,
                        "messages": [{"role": "system", "content": PROMPT}, {"role": "user", "content": user}]}).encode()
     req = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions", body, {
         "Authorization": "Bearer " + os.environ["OPENROUTER_API_KEY"], "Content-Type": "application/json"})
@@ -35,6 +35,9 @@ def judge(job):
     user = (f"POST:\n{post or '(not available)'}\n\nNOTE:\n{note['summary']}\n\n"
             f"CITED PAGE ({page['url']})\nTITLE: {page['title']}\nTEXT:\n{page['text']}")
     reply = ask(model, user)
+    if "choices" not in reply:  # transport or billing failure: leave uncached so a rerun retries it
+        print("failed:", model, reply.get("error"), flush=True)
+        return
     rec = {"noteId": note["noteId"], "url": page["url"], "model": model, "raw": reply, "label": "JUDGE_ERROR", "quote_found": None}
     try:
         text = reply["choices"][0]["message"]["content"]
