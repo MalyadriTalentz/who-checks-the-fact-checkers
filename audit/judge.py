@@ -1,10 +1,10 @@
 """Run the frozen judge prompt on every (note, readable cited page) pair, once per judge model.
 
-Usage: OPENROUTER_API_KEY=... python audit/judge.py vendor/model-a vendor/model-b [--limit N]
+Usage: python audit/judge.py claude-cli/sonnet codex-cli/gpt-5.6-terra [--limit N]
 Writes audit/judgments/<model>/<noteId>__<url sha1>.json (raw reply + parsed label). Resumable.
 Judges never see whether a note is AI- or human-written.
 """
-import hashlib, json, os, pathlib, re, sys, time, urllib.request
+import hashlib, json, pathlib, re, subprocess, sys, tempfile, time
 from concurrent.futures import ThreadPoolExecutor
 
 PROMPT = pathlib.Path("audit/judge_prompt.md").read_text()
@@ -13,17 +13,26 @@ norm = lambda s: re.sub(r"\W+", " ", s).lower().strip()
 
 
 def ask(model, user):
-    body = json.dumps({"model": model, "temperature": 0, "max_tokens": 2000,
-                       "messages": [{"role": "system", "content": PROMPT}, {"role": "user", "content": user}]}).encode()
-    req = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions", body, {
-        "Authorization": "Bearer " + os.environ["OPENROUTER_API_KEY"], "Content-Type": "application/json"})
-    for attempt in range(5):
+    """Both judges run through local command-line clients on the author's own subscriptions (see DEVIATIONS D2).
+    No tools are given to the Claude client; the Codex client runs read-only in an empty directory."""
+    for attempt in range(3):
         try:
-            with urllib.request.urlopen(req, timeout=120) as r:
-                return json.loads(r.read())
+            if model.startswith("claude-cli/"):
+                r = subprocess.run(["claude", "-p", "--model", model.split("/")[1], "--system-prompt", PROMPT, "--tools", "",
+                                    "--strict-mcp-config", "--no-session-persistence", "--setting-sources", "", "--output-format", "json"],
+                                   input=user, capture_output=True, text=True, timeout=300)
+                d = json.loads(r.stdout)
+                if d.get("is_error"):
+                    raise RuntimeError(str(d.get("result"))[:200])
+                return {"choices": [{"message": {"content": d["result"]}}], "served_by": list((d.get("modelUsage") or {}).keys())}
+            with tempfile.TemporaryDirectory() as tmp:
+                r = subprocess.run(["codex", "exec", "--skip-git-repo-check", "--ephemeral", "-s", "read-only", "-C", tmp,
+                                    "-m", model.split("/")[1], "-o", tmp + "/out.txt", "-"],
+                                   input=PROMPT + "\n-----\n" + user, capture_output=True, text=True, timeout=600)
+                return {"choices": [{"message": {"content": pathlib.Path(tmp + "/out.txt").read_text()}}]}
         except Exception as e:
-            err = f"{type(e).__name__} {getattr(e, 'code', '')}"
-            time.sleep(3 * (attempt + 1))
+            err = f"{type(e).__name__}: {str(e)[:200]}"
+            time.sleep(20 * (attempt + 1))
     return {"error": err}
 
 
@@ -67,5 +76,5 @@ if __name__ == "__main__":
             if page["status"] == "ok":
                 jobs += [(m, n, page, post) for m in models]
     print(len(jobs), "judgments to make (cached ones are skipped)")
-    with ThreadPoolExecutor(8) as ex:
+    with ThreadPoolExecutor(4) as ex:
         list(ex.map(judge, jobs))

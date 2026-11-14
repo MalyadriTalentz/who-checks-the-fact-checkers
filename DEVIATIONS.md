@@ -17,3 +17,14 @@ itself was pre-registered, only the way of finding the account changed.
 Judge A: `anthropic/claude-sonnet-5.5`. Judge B: `google/gemini-3.8-flash`. Both through OpenRouter,
 temperature 0, `max_tokens` 2000, prompt `audit/judge_prompt.md` as committed in `8f4dbcc`.
 A ten-note mechanics pilot ran first; its judgments are kept and are part of the main run (same prompt, same models).
+
+## D2 (2026-11-15): judges changed before the main run, for cost
+
+The OpenRouter account had no credit, so the judges recorded above could not be run. Before any
+main-run judgment, they were replaced by two models reached through local command-line clients on
+the author's own subscriptions, still from two vendors: **Judge A `claude-sonnet-5-5`** (Claude
+Code client, no tools) and **Judge B `gpt-5.6-terra`** (Codex client, read-only sandbox in an empty
+directory). The prompt is unchanged (`audit/judge_prompt.md`, commit `8f4dbcc`). Temperature cannot
+be set through these clients, so judgments use each client's default sampling instead of the
+pre-registered temperature 0. The 14 judgments from the OpenRouter mechanics pilot were discarded
+unread except for label counts used to debug the runner; every pair is judged afresh.
