@@ -6,7 +6,7 @@ Human labels, when present, are read from audit/gold_labels_*.csv (one file per 
 import csv, glob, hashlib, json, pathlib, collections
 import numpy as np
 
-A, B, C = "claude-cli__sonnet", "codex-cli__gpt-5.6-terra", "adaption__qwen3.5-397b"
+A, B, C = "claude-cli__sonnet", "adaption__qwen3.5-397b", "adaption__glm-5.2"  # see DEVIATIONS D5
 SEED, NB = 20261115, 2000
 rng = np.random.default_rng(SEED)
 sample = {r["noteId"]: r for r in csv.DictReader(open("audit/sample.csv"))}

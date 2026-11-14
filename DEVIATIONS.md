@@ -43,3 +43,17 @@ Added before any citation result was tabulated. 150 sampled notes are each paire
 page cited by a note on a different post, and judged with the same prompt by all three judges. A
 sound judge should label almost none of these SUPPORTS or PARTIAL, so that share is reported as each
 judge's false-support rate. This is an extra validity check; it changes no pre-registered outcome.
+
+## D5 (2026-11-15): Judge B replaced after the GPT client hit its usage limit
+
+The Codex client stopped at 110 of about 780 judgments: the author's free ChatGPT plan reached its
+usage limit and does not reset until after the deadline. Decided before any citation result was
+tabulated by author type:
+
+- **Judge A** stays `claude-sonnet-5-5`.
+- **Judge B** is now `qwen3.5-397b` (sponsor API, temperature 0), previously Judge C.
+- **Judge C** (robustness only, as in D3) is now `glm-5.2` (sponsor API, temperature 0).
+- The 110 `gpt-5.6-terra` judgments are kept. They cover a hash-ordered, effectively random subset
+  of pairs and are reported only as an extra agreement check against Judges A and B.
+
+The primary H3 estimate is still "notes where Judges A and B agree"; A and B are still from two vendors.
