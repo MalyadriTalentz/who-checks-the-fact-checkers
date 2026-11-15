@@ -43,7 +43,7 @@ verdict = [
     "Inconclusive: too few unsupported notes" if not (-0.05 < h4b["lo"] and h4b["hi"] < 0.05) else "Blind: interval inside ±5 points",
 ]
 
-TITLE = "The Notes That Vanish: Self-Deletion Inflates AI Fact-Checkers' Track Record on X, While Their Sources Show No Detectable Gap"
+TITLE = "The Notes That Vanish: Self-Deletion Inflates AI Fact-Checkers' Track Record on X"
 AUTHORS = ["Malyadri Chowdary Marneni\u00b9", "Poojitha G\u00b2", "Chandana R\u00b3"]
 AFFILS = ["\u00b9Student researcher, Masters' Union University",
           "\u00b2Sapthagiri NPS University; Research intern, Indian Institute of Management Bangalore",
@@ -55,7 +55,7 @@ ABSTRACT = (
     f"pre-registered audit measures what that score cannot see. Using X's public record of notes from September 2025 "
     f"to October 2026 ({f0(G['ai']['notes'])} AI and {f0(G['human']['notes'])} human notes), AI writers deleted "
     f"{pc(G['ai']['deleted'][0])} of their notes against {pc(G['human']['deleted'][0])} for humans. Nearly all of these "
-    f"deletions come from six high-volume accounts and jump in April 2026, a pattern consistent with "
+    f"deletions come from seven accounts, six of them high-volume, and jump in April 2026, a pattern consistent with "
     f"the automatic deletion of likely failures that X describes in its own AI writer. Counting the deleted notes halves the "
     f"AI advantage in reaching Helpful status, from {pt(H1['diff_surviving_only']['est'])} to {pt(H1['diff_all_notes']['est'])} "
     f"points, a clear shrinkage but below our pre-registered 5-point margin, and one that may rest on a single operator. Three LLM judges from different vendors "
@@ -242,7 +242,8 @@ S.append(("table", (["Analysis", "Shrinkage, points", "AI minus human, all notes
     [f"Without the {X['deleting_writers']['writers']} deleting accounts", rg(RB["without_deleting_accounts"]["survivorship_gap"]),
      rg(RB["without_deleting_accounts"]["diff_all_notes"])],
     ["Notes created to August 2026", rg(RB["notes_to_2026_08"]["survivorship_gap"]), rg(RB["notes_to_2026_08"]["diff_all_notes"])],
-], "Table 2. H1 under exploratory checks (rows 2 to 4 not pre-registered). Brackets: 95% author-cluster bootstrap intervals.")))
+], "Table 2. H1 under exploratory checks (rows 2 to 4 not pre-registered). Brackets: 95% author-cluster bootstrap intervals; "
+   "they are asymmetric because six accounts hold 88% of AI notes, so each resample depends on how often they are drawn.")))
 h3("Part 2: no detectable gap in whether sources support the notes")
 para(f"AI notes cited a readable source far more often: {pc(ok_share['ai'], 0)} of AI-cited links could be read and judged "
      f"against {pc(ok_share['human'], 0)} of human-cited links, and {pc(p2['secondary']['no_checkable_source_judgeA']['human'])} "
