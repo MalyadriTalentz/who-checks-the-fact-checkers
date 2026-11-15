@@ -151,6 +151,22 @@ for name, j in (("A", A), ("B", B), ("C", C)):
         res["negative_control"][name] = {"n": len(labs), "false_support": sum(l in ("SUPPORTS", "PARTIAL") for l in labs),
                                          "labels": dict(collections.Counter(labs))}
 
+# Harder control (DEVIATIONS D8): one number changed in a note all judges called supported; support now counts as a miss.
+res["perturbed_control"] = {}
+for name, j in (("A", A), ("B", B), ("C", C)):
+    labs = [json.loads(p.read_text())["label"] for p in pathlib.Path(f"audit/control_perturbed/{j}").glob("*.json")]
+    if labs:
+        res["perturbed_control"][name] = {"n": len(labs), "missed": sum(l in ("SUPPORTS", "PARTIAL") for l in labs),
+                                          "labels": dict(collections.Counter(labs))}
+man = json.load(open("audit/control_perturbed/manifest.json")) if pathlib.Path("audit/control_perturbed/manifest.json").exists() else []
+clean = [m for m in man if m["to"] not in page(m["url"])["text"]]  # drop pairs where the new number also appears on the page
+caught = lambda j, m: json.loads(pathlib.Path(f"audit/control_perturbed/{j}/{m['noteId']}__{sha(m['url'])[:12]}.json").read_text())["label"] in ("DOES_NOT_SUPPORT", "UNVERIFIED_QUOTE")
+if clean:
+    res["perturbed_control"]["clean_n"] = len(clean)
+    for name, j in (("A", A), ("B", B), ("C", C)):
+        res["perturbed_control"][f"clean_caught_{name}"] = sum(caught(j, m) for m in clean)
+    res["perturbed_control"]["clean_caught_any"] = sum(any(caught(j, m) for j in (A, B, C)) for m in clean)
+
 # Extra agreement check (DEVIATIONS D5): the 110 judgments the first Judge B made before its usage limit.
 G = "codex-cli__gpt-5.6-terra"
 gk = [(p.name, json.loads(p.read_text())["label"]) for p in pathlib.Path(f"audit/judgments/{G}").glob("*.json")]

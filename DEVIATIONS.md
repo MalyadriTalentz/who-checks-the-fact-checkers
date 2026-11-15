@@ -86,3 +86,13 @@ not the prompt, model, temperature or token cap.
 Correction to D7 (15 Nov, ~13:30 IST): the team has three authors (Malyadri Chowdary Marneni,
 Poojitha G, Chandana R), not one. The single-labeller design stands unless a second author labels
 the same sheet, in which case human-human kappa is reported as PREREG section 8 planned.
+
+## D8 (15 Nov, ~14:00 IST): harder negative control by perturbing one number
+
+The mismatched-page control (D4) is easy to pass. As a harder test, decided before running it:
+take note-page pairs that all three judges labelled SUPPORTS where the note contains a number of at
+least two digits that also appears on the page, change the first such number (years +3, other numbers
+x1.5, rounded), and judge the altered note against the same page. The page now contradicts the note,
+so SUPPORTS or PARTIAL counts as a miss. Up to 100 pairs, chosen in hash order. Outputs go to
+`audit/control_perturbed/` with a manifest of each change. This is a robustness check on the judges
+and changes no hypothesis or primary analysis.

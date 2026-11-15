@@ -157,6 +157,43 @@
    }
   }
  },
+ "perturbed_control": {
+  "A": {
+   "n": 80,
+   "missed": 70,
+   "labels": {
+    "SUPPORTS": 59,
+    "PARTIAL": 11,
+    "DOES_NOT_SUPPORT": 7,
+    "UNVERIFIED_QUOTE": 3
+   }
+  },
+  "B": {
+   "n": 80,
+   "missed": 59,
+   "labels": {
+    "SUPPORTS": 51,
+    "UNVERIFIED_QUOTE": 5,
+    "PARTIAL": 8,
+    "DOES_NOT_SUPPORT": 16
+   }
+  },
+  "C": {
+   "n": 80,
+   "missed": 59,
+   "labels": {
+    "UNVERIFIED_QUOTE": 8,
+    "SUPPORTS": 54,
+    "DOES_NOT_SUPPORT": 13,
+    "PARTIAL": 5
+   }
+  },
+  "clean_n": 62,
+  "clean_caught_A": 4,
+  "clean_caught_B": 15,
+  "clean_caught_C": 15,
+  "clean_caught_any": 23
+ },
  "gpt_subset": {
   "n": 110,
   "kappa_vs_A": 0.6024967148488832,

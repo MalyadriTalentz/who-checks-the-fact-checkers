@@ -9,6 +9,7 @@ from docx.shared import Inches, Pt
 p1, p2 = json.load(open("results/part1.json")), json.load(open("results/part2.json"))
 G, H1, H2, X = p1["groups"], p1["H1"], p1["H2"], p1["exploratory_ai_by_deletion"]
 H3, H4, AG, NC, GPT = p2["H3"], p2["H4"], p2["agreement"], p2["negative_control"], p2["gpt_subset"]
+PC = p2["perturbed_control"]
 pc = lambda v, d=1: f"{100 * v:.{d}f}%"
 pt = lambda v, d=1: f"{100 * v:+.{d}f}"
 ci = lambda b: f"{pt(b['est'] if 'est' in b else b['diff'])} points [95% CI {pt(b['lo'])}, {pt(b['hi'])}]"
@@ -57,7 +58,7 @@ ABSTRACT = (
     f"AI advantage in reaching Helpful status, from {pt(H1['diff_surviving_only']['est'])} to {pt(H1['diff_all_notes']['est'])} "
     f"points. The second question is whether the notes are true to their sources. Three LLM judges from different vendors "
     f"checked the pages cited by 800 AI and human notes on the same 400 posts; none called any of {NC['A']['n']} deliberately "
-    f"mismatched pages support. Here AI notes held up: they cited a readable source far more often, and were unsupported no "
+    f"mismatched pages support, though they caught few notes with one number altered. Here AI notes held up: they cited a readable source far more often, and were unsupported no "
     f"more often than human notes ({pc(H3['primary_agree_set']['ai'])} vs {pc(H3['primary_agree_set']['human'])}, difference "
     f"not statistically clear). Raters' own source tags barely told supported from unsupported notes. AI fact-checkers' "
     f"sources deserve more trust than their survival statistics: evaluations should count deleted notes."
@@ -158,7 +159,10 @@ para("Each pair was judged with one frozen prompt that asks whether the cited pa
      "on which Judges A and B agree; lower and upper bounds count notes both, or either, call unsupported.")
 para("Two checks test the judges. In a negative control, 150 notes were each paired with a readable page cited by a note on "
      "a different post; a sound judge should almost never call such a page support. An earlier run of GPT-5.6 on 110 pairs, "
-     "stopped by a usage limit, gives an extra agreement check. A human check was planned (see Limitations).")
+     "stopped by a usage limit, gives an extra agreement check. A harder control, added during the sprint (DEVIATIONS D8), "
+     "takes pairs that all three judges called supported, changes one number in the note (years by three, other numbers "
+     "by half again) and asks whether the judges notice that the page no longer backs it. A human check was planned (see "
+     "Limitations).")
 h3("Rater blindness (Part 3)")
 para(f"For the same notes we took all {f0(90742)} public ratings and computed, per note, the share of raters who ticked "
      "\"good sources\" and the share who ticked \"sources missing or unreliable\". H4 asks whether these shares differ between "
@@ -231,6 +235,12 @@ para(f"The judges passed the negative control: none of the three called any of t
      f"{AG['note_AB_kappa']:.2f} per note). Most disagreements were PARTIAL against SUPPORTS rather than support against no "
      f"support. On the 110 GPT-5.6 pairs, kappa with Judges A, B and C was {GPT['kappa_vs_A']:.2f}, {GPT['kappa_vs_B']:.2f} and "
      f"{GPT['kappa_vs_C']:.2f}.")
+para(f"The harder control exposes the judges' limit. In {PC['clean_n']} pairs where one number in the note was changed and the "
+     f"new number appears nowhere on the page, Judge A flagged {PC['clean_caught_A']}, Judge B {PC['clean_caught_B']} and "
+     f"Judge C {PC['clean_caught_C']}; at least one judge flagged {PC['clean_caught_any']}. Their reasons show why: they check "
+     "whether the page backs the note's main point and pass over wrong dates and figures. The citation results above "
+     "therefore measure whether sources support what a note is about, not whether every detail is right; detail errors are "
+     "largely invisible to this method, for AI and human notes alike.")
 S.append(("box", "What an unsupported Helpful note looks like. An AI note said an image showed the 2003 breakup of "
     "Space Shuttle Columbia, not Artemis 2, and cited a NASA Ames page; the page is a general overview of the division "
     "that never mentions Columbia. A human note called viral \"hero dog\" rescue clips AI-generated and cited a 2021 "
@@ -260,14 +270,17 @@ para("Raters cannot be the only check on sources. Their source tags barely separ
      "and the tag meant to flag bad sources did not move at all. An automated source check like the one used here, with "
      f"its quote verification and negative control, cost about {100 * cost_b:.1f} US cents per cited link with Judge B and "
      f"{100 * cost_c:.1f} cents with Judge C here, cheap enough to run on every note before it is shown, for AI and human "
-     "writers alike.")
+     "writers alike. It catches sources that are off-topic or say something else, but, as the altered-number control shows, "
+     "not wrong details, which still need a human or a stricter, claim-by-claim check.")
 para("Not everything went as planned. H1 held but fell short of the 5-point effect we set in advance; H4 could not be "
-     "settled with 26 unsupported notes; the human check was cut from two labellers on 150 notes to one on 60; and two "
+     "settled with 26 unsupported notes; the judges failed the harder altered-number control; the human check was cut from two labellers on 150 notes to one on 60; and two "
      "judges had to be swapped mid-sprint. All of these are recorded in DEVIATIONS.md as they happened.")
 h3("Limitations")
 bullet("Judges are LLMs and agree only moderately with each other. The planned human check (one labeller on 60 notes, "
        "half of them chosen because Judge A flagged them; DEVIATIONS D7) is not reported in this version. Results are "
        "given for each judge rule so readers can see how much they move.")
+bullet("The judges miss most altered details (Section 4), so the unsupported rates are lower bounds that cover "
+       "sources off the note's main point, not factual slips in dates or figures.")
 bullet(f"Coverage is uneven. Only {pc(ok_share['ai'], 0)} of AI-cited and {pc(ok_share['human'], 0)} of human-cited links "
        "could be read, so Part 2 describes notes with readable sources; videos, posts and blocked pages are not covered.")
 bullet("The citation sample only includes notes that reached Helpful status on posts that both kinds of writer noted, so it "

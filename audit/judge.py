@@ -104,6 +104,39 @@ def control_jobs(notes, models, n):
     return jobs
 
 
+def perturb_jobs(notes, models, n):
+    """Harder negative control (DEVIATIONS D8): change one number in a note all three judges called supported."""
+    h = lambda x: hashlib.md5((x + "perturb20261115").encode()).hexdigest()
+    judges = ["claude-cli__sonnet", "adaption__qwen3.5-397b", "adaption__glm-5.2"]
+    def bump(m):
+        v = m.group(0); x = int(v.replace(",", ""))
+        y = x + 3 if 1900 <= x <= 2099 else round(x * 1.5)
+        return f"{y:,}" if "," in v else str(y)
+    jobs, manifest = [], []
+    for nt in sorted(notes, key=lambda x: h(x["noteId"])):
+        for u in dict.fromkeys(nt["urls"]):
+            sha = hashlib.sha1(u.encode()).hexdigest()
+            fs = [pathlib.Path(f"audit/judgments/{j}/{nt['noteId']}__{sha[:12]}.json") for j in judges]
+            if not all(f.exists() and json.loads(f.read_text())["label"] == "SUPPORTS" for f in fs):
+                continue
+            pg = json.loads(pathlib.Path(f"cache/pages/{sha}.json").read_text())
+            m = next((m for m in re.finditer(r"(?<![\d.,])\d{1,3}(?:,\d{3})+(?![\d,])|(?<![\d.,])\d{2,}(?![\d.,])", nt["summary"].split("http")[0])
+                      if m.group(0) in pg["text"]), None)
+            if not m:
+                continue
+            new = bump(m)
+            alt = dict(nt, summary=nt["summary"][:m.start()] + new + nt["summary"][m.end():])
+            post = json.loads(pathlib.Path(f"cache/posts/{nt['tweetId']}.json").read_text())["text"]
+            jobs += [(mod, alt, pg, post) for mod in models]
+            manifest.append({"noteId": nt["noteId"], "url": u, "from": m.group(0), "to": new})
+            break
+        if len(manifest) >= n:
+            break
+    pathlib.Path("audit/control_perturbed").mkdir(parents=True, exist_ok=True)
+    pathlib.Path("audit/control_perturbed/manifest.json").write_text(json.dumps(manifest, indent=1))
+    return jobs
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
     limit = int(args[args.index("--limit") + 1]) if "--limit" in args else None
@@ -113,6 +146,10 @@ if __name__ == "__main__":
     if "--control" in args:
         OUT_DIR = "audit/control"
         jobs = control_jobs(notes, models, int(args[args.index("--control") + 1]))
+        notes = []
+    if "--perturb" in args:
+        OUT_DIR = "audit/control_perturbed"
+        jobs = perturb_jobs(notes, models, int(args[args.index("--perturb") + 1]))
         notes = []
     for n in notes:
         post = json.loads(pathlib.Path(f"cache/posts/{n['tweetId']}.json").read_text())["text"]
