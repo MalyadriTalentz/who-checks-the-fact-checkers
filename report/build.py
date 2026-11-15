@@ -37,10 +37,10 @@ cost_b, cost_c = mean_cost("adaption__qwen3.5-397b"), mean_cost("adaption__glm-5
 fp = lambda x: "p < 0.001" if x < 0.001 else f"p = {x:.2f}"
 h4b = H4["helpfulGoodSources_share"]
 verdict = [
-    f"Supported ({fp(holm[0])}), but below the 5-point margin, and driven by one group of accounts",
-    f"Small difference, AI lower; {fp(holm[1])} after correction (uncorrected {fp(raw[1])}); far inside the 5-point margin",
-    f"No detectable difference ({fp(holm[2])}); point estimate favours AI notes; provisional (D9)",
-    "Inconclusive: interval not inside ±5 points" if not (-0.05 < h4b["lo"] and h4b["hi"] < 0.05) else "Blind: interval inside ±5 points",
+    f"Supported in direction ({fp(holm[0])}); below the 5-point margin",
+    f"No clear difference ({fp(holm[1])}); inside the 5-point margin",
+    f"No detectable difference ({fp(holm[2])}); provisional (D9)",
+    "Inconclusive: too few unsupported notes" if not (-0.05 < h4b["lo"] and h4b["hi"] < 0.05) else "Blind: interval inside ±5 points",
 ]
 
 TITLE = "The Notes That Vanish: Self-Deletion Inflates AI Fact-Checkers' Track Record on X, While Their Sources Show No Detectable Gap"
@@ -58,10 +58,10 @@ ABSTRACT = (
     f"deletions come from six high-volume accounts and jump in April 2026, a pattern consistent with "
     f"the automatic deletion of likely failures that X describes in its own AI writer. Counting the deleted notes halves the "
     f"AI advantage in reaching Helpful status, from {pt(H1['diff_surviving_only']['est'])} to {pt(H1['diff_all_notes']['est'])} "
-    f"points. The second question is whether the notes are true to their sources. Three LLM judges from different vendors "
+    f"points, a clear shrinkage but below our pre-registered 5-point margin, and one that may rest on a single operator. Three LLM judges from different vendors "
     f"checked the pages cited by 800 AI and human notes on the same 400 posts; none called any of {NC['A']['n']} deliberately "
-    f"mismatched pages support, though they caught few notes with one number altered. Here AI notes held up: they cited a readable source far more often, and were unsupported no "
-    f"more often than human notes ({pc(H3['primary_agree_set']['ai'])} vs {pc(H3['primary_agree_set']['human'])}, difference "
+    f"mismatched pages support, though they caught few notes with one number altered. AI notes cited a readable source far more often and, among notes with "
+    f"a readable source, were unsupported no more often than human notes ({pc(H3['primary_agree_set']['ai'])} vs {pc(H3['primary_agree_set']['human'])}, difference "
     f"not statistically clear). Whether raters' own source tags track support could not be settled. Evaluations of AI "
     f"fact-checkers should count deleted notes, and their sources show no detectable gap against human notes (provisional)."
 )
@@ -87,7 +87,10 @@ para("So far the answer has come from one number: how often raters mark AI notes
      "back it up would pass this test, which is exactly the failure an epistemic system most needs to catch.")
 para("Forecasters will recognise the first problem. A Helpful rate computed on surviving notes is an improper score: like "
      "a forecaster allowed to delete predictions before they resolve, a writer can raise it by withdrawing likely failures, "
-     "without becoming any more accurate.")
+     "without becoming any more accurate. Formally, if each note would reach Helpful with probability p and the writer "
+     "deletes, before rating, every note whose p is below a threshold t, the surviving-note rate becomes the average p among "
+     "kept notes, which rises with t although no note improves. The rate over all submitted notes, with deleted notes "
+     "counted as not Helpful, cannot be raised by deleting, so it removes the incentive.")
 para("This project audits AI fact-checkers on both blind spots, independently of the platform's own scoring, with every "
      "hypothesis fixed in advance. Its contributions:")
 bullet(f"A survivorship correction on the full public record ({f0(G['ai']['notes'] + G['human']['notes'])} notes). AI "
@@ -96,7 +99,9 @@ bullet(f"A survivorship correction on the full public record ({f0(G['ai']['notes
        "in reaching Helpful status.")
 bullet("A source audit of 800 AI and human notes on the same 400 posts, using three LLM judges from different vendors, a "
        "deterministic quote check and a mismatched-page control. AI notes cite readable sources more often and are not "
-       "more often unsupported.")
+       "more often unsupported among notes with a readable source.")
+bullet(f"Evidence that LLM source-checkers reject off-topic pages but catch few altered details: with one number changed in "
+       f"notes all judges had called supported, any judge flagged only {PC['clean_caught_any']} of {PC['clean_n']}.")
 bullet("A test of whether raters' source tags track verified support (inconclusive), plus a per-writer reliability table and a "
        "one-command script that rebuilds every number from any day's public data.")
 S.append(("table", (["Pre-registered question", "Result (AI minus human)", "Verdict"], [
@@ -172,6 +177,11 @@ para(f"For the same notes we took all {f0(90742)} public ratings and computed, p
      "notes the judges agree are supported and notes they agree are unsupported, with ±5 points as the equivalence margin.")
 
 h2("4. Results")
+S.append(("box", "Results in brief. (1) Counting deleted notes halves the AI advantage in reaching Helpful status; the "
+    "effect comes from six accounts that delete about a fifth of their notes. (2) Once Helpful, AI notes keep that status "
+    "as well as human notes. (3) Among notes with a readable source, AI notes are not more often unsupported, but this "
+    "rests on LLM judges that agree only moderately with human labels and miss altered details. (4) Whether raters' source "
+    "tags track support could not be settled."))
 h3("Part 1: deletion flatters AI writers' track record")
 fig("results/fig1_survivorship.png",
     f"Figure 1. Share of notes ever rated Helpful, on surviving notes (light) and on all notes including deleted ones "
@@ -183,41 +193,10 @@ para(f"AI writers deleted {pc(G['ai']['deleted'][0])} of their notes; human writ
      f"Counting deleted notes, the advantage is {ci(H1['diff_all_notes'])}. H1 is supported: the shrinkage is "
      f"{ci(H1['survivorship_gap'])} ({fp(holm[0])}, Holm-corrected), about half of the headline advantage, although it falls "
      "short of the 5-point smallest effect of interest fixed in advance.")
-para(f"Why the advantage shrinks matters more than the fact that it does. Only {pc(eh_del['ai'], 2)} of the notes AI writers "
-     f"deleted had ever been rated Helpful, against {pc(eh_del['human'])} of the notes humans deleted. AI notes are withdrawn "
-     "before raters reach a verdict, so their outcome is never observed. The two published-style comparisons therefore bracket "
-     "the truth. Counting deleted notes as failures, as X's own quota rules do [4], gives the lower bound; counting only "
-     "surviving notes assumes deleted notes would have done as well as the rest, which a deletion model aimed at likely "
-     f"failures makes implausible. If deleted AI notes would have reached Helpful at a quarter of the surviving rate, the "
-     f"advantage would be {pt(adv_r(0.25))} points; at half, {pt(adv_r(0.5))}. The headline +{100 * H1['diff_surviving_only']['est']:.1f} "
-     "requires deleted notes to be at least as good as surviving ones.")
-para("Of the two, counting deleted notes is the like-for-like comparison. A human note that fails stays in the record as "
+para("Counting deleted notes is the like-for-like comparison. A human note that fails stays in the record as "
      "not Helpful and counts against its writer; an AI note withdrawn before its verdict would otherwise vanish from the "
      "denominator. Counting it treats both kinds of writer the same way, which is also how X's quota system scores AI "
      "writers [4].")
-para(f"The effect belongs to a design, not to AI writers in general. Without the {X['deleting_writers']['writers']} deleting "
-     f"accounts, the shrinkage disappears ({ci(RB['without_deleting_accounts']['survivorship_gap'])}) and the remaining AI "
-     f"writers are ahead of humans by {ci(RB['without_deleting_accounts']['diff_all_notes'])} even with deleted notes counted. "
-     "Six of them look alike (53,000 to 55,000 notes each, starting in November or December 2025, 19 to 20% deleted) and may "
-     "be one operator; the seventh is a 77-note account just over the 5% cutoff. Treated as "
-     f"a single cluster, the shrinkage interval becomes {ci(RB['deleting_accounts_one_cluster']['survivorship_gap'])} and no "
-     "longer excludes zero, because the population then holds effectively one deleter. Restricting to notes created by "
-     f"August 2026, which have had at least ten weeks for deletion, leaves the shrinkage at "
-     f"{ci(RB['notes_to_2026_08']['survivorship_gap'])}. These checks were not pre-registered.")
-para(f"The deletions are not spread across AI writers. {X['deleting_writers']['writers']} accounts delete more than 5% of their "
-     f"notes; together they wrote {pc(X['deleting_writers']['notes'] / G['ai']['notes'], 0)} of AI notes and deleted "
-     f"{pc(X['deleting_writers']['deleted'][0])} of them, while the other {X['non_deleting_writers']['writers']} AI writers deleted "
-     f"{pc(X['non_deleting_writers']['deleted'][0])}. AI deletion was near zero until February 2026, rose in March and jumped to 15 to 22% a "
-     "month from April (Figure 2), which fits a deletion policy being switched on rather than a gradual change in writing. This pattern "
-     "matches the Deletion Model in X's Community Writer [4], although hashed ids mean the accounts cannot be named. "
-     "On surviving notes the deleting accounts look slightly better than the other AI writers "
-     f"({pc(X['deleting_writers']['ever_helpful_surviving_only'][0])} vs {pc(X['non_deleting_writers']['ever_helpful_surviving_only'][0])} "
-     f"ever Helpful); on all notes they look worse ({pc(X['deleting_writers']['ever_helpful_all_notes'][0])} vs "
-     f"{pc(X['non_deleting_writers']['ever_helpful_all_notes'][0])}). This split was not pre-registered.")
-fig("results/fig2_monthly.png",
-    "Figure 2. Left: AI writers' share of new notes by month. Right: share of each month's notes later deleted by their "
-    "author. AI deletion rises in March 2026 and jumps from April. Recent months have had less time for notes to be deleted, which "
-    "may explain part of the fall in the human line; X's deletion model can act as soon as three ratings arrive [4].")
 para(f"Once Helpful, AI notes keep that status no worse than human notes. Within the 5,487 posts with both kinds of "
      f"ever-Helpful note, {pc(H2['within_post_rates']['ai'])} of AI notes and {pc(H2['within_post_rates']['human'])} of human "
      f"notes later lost it, a difference of {ci(H2['within_post'])}. The "
@@ -227,6 +206,43 @@ para(f"Once Helpful, AI notes keep that status no worse than human notes. Within
      "but human notes are older and on different posts; reweighting human notes to the AI notes' months still leaves a "
      f"{pt(H2['month_standardised']['diff'])}-point gap. The same-post comparison, the pre-registered primary, removes "
      "most of that confounding.")
+h3("Part 1, exploratory: who deletes, and what deleted notes would have scored")
+para(f"The deletions are not spread across AI writers. {X['deleting_writers']['writers']} accounts delete more than 5% of their "
+     f"notes; together they wrote {pc(X['deleting_writers']['notes'] / G['ai']['notes'], 0)} of AI notes and deleted "
+     f"{pc(X['deleting_writers']['deleted'][0])} of them, while the other {X['non_deleting_writers']['writers']} AI writers deleted "
+     f"{pc(X['non_deleting_writers']['deleted'][0])}. AI deletion was near zero until February 2026, rose in March and jumped to 15 to 22% a "
+     "month from April (Figure 2), which fits a deletion policy being switched on rather than a gradual change in writing. This pattern "
+     "matches the Deletion Model in X's Community Writer [4], although hashed ids mean the accounts cannot be named. "
+     "On surviving notes the deleting accounts look slightly better than the other AI writers "
+     f"({pc(X['deleting_writers']['ever_helpful_surviving_only'][0])} vs {pc(X['non_deleting_writers']['ever_helpful_surviving_only'][0])} "
+     f"ever Helpful); on all notes they look worse ({pc(X['deleting_writers']['ever_helpful_all_notes'][0])} vs "
+     f"{pc(X['non_deleting_writers']['ever_helpful_all_notes'][0])}).")
+fig("results/fig2_monthly.png",
+    "Figure 2. Left: AI writers' share of new notes by month. Right: share of each month's notes later deleted by their "
+    "author. AI deletion rises in March 2026 and jumps from April. Recent months have had less time for notes to be deleted, which "
+    "may explain part of the fall in the human line; X's deletion model can act as soon as three ratings arrive [4].")
+para(f"Why the advantage shrinks matters more than the fact that it does. Only {pc(eh_del['ai'], 2)} of the notes AI writers "
+     f"deleted had ever been rated Helpful, against {pc(eh_del['human'])} of the notes humans deleted. AI notes are withdrawn "
+     "before raters reach a verdict, so their outcome is never observed. The two published-style comparisons therefore bracket "
+     "the truth. Counting deleted notes as failures, as X's own quota rules do [4], gives the lower bound; counting only "
+     "surviving notes assumes deleted notes would have done as well as the rest, which a deletion model aimed at likely "
+     f"failures makes implausible. If deleted AI notes would have reached Helpful at a quarter of the surviving rate, the "
+     f"advantage would be {pt(adv_r(0.25))} points; at half, {pt(adv_r(0.5))}. The headline +{100 * H1['diff_surviving_only']['est']:.1f} "
+     "requires deleted notes to be at least as good as surviving ones.")
+para("The effect belongs to a design, not to AI writers in general (Table 2). Without the deleting accounts the shrinkage "
+     "disappears, and the other AI writers lead humans even with deleted notes counted. Six of the deleting accounts look "
+     "alike (53,000 to 55,000 notes each, starting in November or December 2025, 19 to 20% deleted) and may be one operator; "
+     "the seventh is a 77-note account just over the 5% cutoff. Treated as one cluster, the shrinkage interval spans zero, "
+     "because the population then holds effectively one deleter. Notes with at least ten weeks of follow-up give the same "
+     "shrinkage.")
+rg = lambda d: f"{pt(d['est'])} [{pt(d['lo'])}, {pt(d['hi'])}]"
+S.append(("table", (["Analysis", "Shrinkage, points", "AI minus human, all notes"], [
+    ["Pre-registered: each writer a cluster", rg(H1["survivorship_gap"]), rg(H1["diff_all_notes"])],
+    ["Deleting accounts as one cluster", rg(RB["deleting_accounts_one_cluster"]["survivorship_gap"]), "as above"],
+    [f"Without the {X['deleting_writers']['writers']} deleting accounts", rg(RB["without_deleting_accounts"]["survivorship_gap"]),
+     rg(RB["without_deleting_accounts"]["diff_all_notes"])],
+    ["Notes created to August 2026", rg(RB["notes_to_2026_08"]["survivorship_gap"]), rg(RB["notes_to_2026_08"]["diff_all_notes"])],
+], "Table 2. H1 under exploratory checks (not pre-registered). Brackets: 95% author-cluster bootstrap intervals.")))
 h3("Part 2: no detectable gap in whether sources support the notes")
 para(f"AI notes cited a readable source far more often: {pc(ok_share['ai'], 0)} of AI-cited links could be read and judged "
      f"against {pc(ok_share['human'], 0)} of human-cited links, and {pc(p2['secondary']['no_checkable_source_judgeA']['human'])} "
@@ -235,7 +251,8 @@ para(f"AI notes cited a readable source far more often: {pc(ok_share['ai'], 0)} 
      f"({pc(p2['secondary']['has_dead_link']['ai'])} vs {pc(p2['secondary']['has_dead_link']['human'])} of notes).")
 fig("results/fig3_support.png",
     "Figure 3. Share of notes with at least one readable cited page that does not support the note, under four judge rules. "
-    "Below each pair: AI minus human, points, with 95% post-cluster bootstrap interval.")
+    "Below each pair: AI minus human, points, with 95% post-cluster bootstrap interval. Under every rule the point estimate "
+    "favours AI notes; only under the loosest rule does the interval exclude zero.")
 para(f"Among notes with a readable source, AI notes were not more often unsupported (Figure 3). On the primary measure, "
      f"notes where Judges A and B agree, {pc(H3['primary_agree_set']['ai'])} of AI notes and {pc(H3['primary_agree_set']['human'])} "
      f"of human notes were unsupported ({H3['primary_agree_set']['n_ai']} and {H3['primary_agree_set']['n_human']} notes), a "
@@ -245,6 +262,17 @@ para(f"Among notes with a readable source, AI notes were not more often unsuppor
      f"detectable difference ({fp(holm[2])}, Holm-corrected); if anything, the data lean towards AI notes being better sourced. "
      f"The sample could reliably detect a difference of about {100 * mde:.0f} points, so smaller gaps in either direction "
      "cannot be ruled out; the result is \"no worse\", not \"better\".")
+SN = p2["H3_sensitivity"]; cv = SN["coverage"]; lc = SN["leniency_judgeC"]
+para(f"Three exploratory checks probe H3. The sign does not depend on the judge: used alone, Judges A, B and C give "
+     f"{pt(SN['judgeA_alone']['diff'])}, {pt(SN['judgeB_alone']['diff'])} and {pt(SN['judgeC_alone']['diff'])} points. In the "
+     f"hand-labelled links there is no sign that judges are more lenient towards one kind of writer: of the links the humans "
+     f"called unsupported, Judge C passed {lc['ai']['human_dns_judge_supports']} of {lc['ai']['human_dns']} AI-cited and "
+     f"{lc['human']['human_dns_judge_supports']} of {lc['human']['human_dns']} human-cited links, too few for a test. Coverage is "
+     f"the real limit. Over all 800 notes Judge A finds {cv['ai']['uns']} AI and {cv['human']['uns']} human notes unsupported, "
+     f"while {cv['ai']['nc']} AI and {cv['human']['nc']} human notes have no checkable source. If those notes are unsupported at "
+     f"the same rate in both groups, AI notes never come out worse; but if only AI notes' unreadable sources were bad, a rate "
+     f"of {pc(cv['break_even_rate_ai_uncheckable'])} among them would close the gap. H3 holds for notes with readable sources "
+     "and says nothing about the rest.")
 para(f"The judges passed the negative control: none of the three called any of the {NC['A']['n']} mismatched pages support "
      f"(Judge A {NC['A']['false_support']}, Judge B {NC['B']['false_support']}, Judge C {NC['C']['false_support']}). Agreement "
      f"between Judges A and B on real pairs was moderate (Cohen's kappa {AG['url_AB_kappa']:.2f} per link, "
@@ -298,9 +326,12 @@ para("Three lessons follow, and the first matters well beyond Community Notes.")
 para("An AI system that can withdraw its own failures will look more reliable than it is. The deleting accounts look slightly better than "
      "the other AI writers on surviving notes and clearly worse once deletions are counted. Deletion is a reasonable design "
      "choice in itself; X's paper [4] justifies it as saving raters' attention. The problem is comparing writers on surviving "
-     "notes when only some of them delete. The same trap awaits anyone who audits AI agents from logs the agent can edit. "
-     "Platforms should publish deletion rates next to hit rates, and evaluations of AI writers should count every note "
-     "submitted, as X's own quota system already does.")
+     "notes when only some of them delete. The same trap awaits any benchmark or audit that lets an AI agent edit its own "
+     "record.")
+para("Recommendation: a deletion-aware score. Next to each writer's Helpful rate, platforms should publish the number of "
+     "notes ever rated Helpful divided by all notes submitted, with deleted notes counted as not Helpful, together with the "
+     "deletion rate itself. This is the like-for-like measure of Section 4, it cannot be raised by withdrawing likely "
+     "failures, and X's own quota system already counts notes this way [4].")
 para("We found no sign that AI fact-checkers' sourcing is the weak point, though this result is provisional. On posts where both an AI and a human note reached Helpful status, "
      "AI notes more often cite something a reader can check, and what they cite is unsupported no more often, within a detectable difference of about 7 points. Worries "
      "that AI notes win ratings with confident but unsupported claims are not borne out in this sample.")
@@ -341,6 +372,9 @@ para("Counting the notes AI writers delete removes about half of their apparent 
      "check sources rather than rely on helpfulness ratings of surviving notes.")
 
 h2("Code and Data")
+para("Pre-existing work: none. The pre-registration, code, sample, judgments, hand labels, analysis and this report were all "
+     "produced during the sprint (13 to 15 November 2026). The data are X's public Community Notes release; prior work is "
+     "cited in the references.")
 para("Code repository: https://github.com/MalyadriTalentz/who-checks-the-fact-checkers (PREREG.md, DEVIATIONS.md, all "
      "judge replies and the scripts that rebuild every number with ./run_all.sh).")
 para("Data: X Community Notes public data release, snapshot of 14 November 2026 (https://x.com/i/communitynotes/download-data).")
@@ -387,7 +421,7 @@ S.append(("table", (["Writer (hashed id)", "Notes; first month", "Deleted / ever
     [r["writer"], f"{int(r['notes']):,}; {r['first_month']}",
      f"{100 * float(r['deleted_rate']):.1f}% / {100 * float(r['ever_helpful_rate']):.1f}% / "
      + (f"{100 * float(r['lost_rate']):.1f}%" if r["lost_rate"] else "n/a")] for r in top],
-    "Table 2. Ever Helpful is over all notes including deleted ones. Full table for all AI writers: results/writers.csv, "
+    "Table 3. Ever Helpful is over all notes including deleted ones. Full table for all AI writers: results/writers.csv, "
     "rebuilt from any day's public data by analysis/part1.py.")))
 
 h2("LLM Usage Statement")
@@ -517,7 +551,7 @@ for kind, c in S:
         L.append(r"\begin{figure}[htbp]\centering\includegraphics[width=\linewidth]{../" + c[0] + r"}\caption{" + esc(c[1]) + r"}\end{figure}")
     elif kind == "table":
         head, rows, cap = c
-        L.append(r"\begin{table}[" + ("H" if cap.startswith("Table 2") else "htbp") + r"]\centering\small\renewcommand{\arraystretch}{1.25}\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}\toprule")
+        L.append(r"\begin{table}[" + ("H" if cap.startswith("Table 3") else "htbp") + r"]\centering\small\renewcommand{\arraystretch}{1.25}\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}\toprule")
         L.append(" & ".join(r"\textbf{\sffamily " + esc(h) + "}" for h in head) + r"\\\midrule")
         L += [" & ".join(esc(v) for v in row) + r"\\" for row in rows]
         L.append(r"\bottomrule\end{tabularx}\caption{" + esc(cap) + r"}\end{table}")

@@ -191,6 +191,90 @@
    }
   }
  },
+ "H3_sensitivity": {
+  "judgeA_alone": {
+   "ai": 0.0708955223880597,
+   "human": 0.11229946524064172,
+   "n_ai": 268,
+   "n_human": 187,
+   "diff": -0.04140394285258202,
+   "lo": -0.09291787174132066,
+   "hi": 0.007568578623361893
+  },
+  "judgeB_alone": {
+   "ai": 0.07782101167315175,
+   "human": 0.14594594594594595,
+   "n_ai": 257,
+   "n_human": 185,
+   "diff": -0.0681249342727942,
+   "lo": -0.12722137703109604,
+   "hi": -0.0056001237279128405
+  },
+  "judgeC_alone": {
+   "ai": 0.0411522633744856,
+   "human": 0.07428571428571429,
+   "n_ai": 243,
+   "n_human": 175,
+   "diff": -0.03313345091122869,
+   "lo": -0.07316426148467166,
+   "hi": 0.009043742113801594
+  },
+  "coverage": {
+   "ai": {
+    "n": 400,
+    "uns": 19,
+    "nc": 132
+   },
+   "human": {
+    "n": 400,
+    "uns": 21,
+    "nc": 213
+   },
+   "break_even_rate_ai_uncheckable": 0.015151515151515152
+  },
+  "leniency_judgeA": {
+   "ai": {
+    "links": 67,
+    "agree": 45,
+    "human_dns": 8,
+    "human_dns_judge_supports": 0
+   },
+   "human": {
+    "links": 39,
+    "agree": 23,
+    "human_dns": 15,
+    "human_dns_judge_supports": 1
+   }
+  },
+  "leniency_judgeB": {
+   "ai": {
+    "links": 67,
+    "agree": 41,
+    "human_dns": 8,
+    "human_dns_judge_supports": 2
+   },
+   "human": {
+    "links": 39,
+    "agree": 19,
+    "human_dns": 15,
+    "human_dns_judge_supports": 4
+   }
+  },
+  "leniency_judgeC": {
+   "ai": {
+    "links": 67,
+    "agree": 37,
+    "human_dns": 8,
+    "human_dns_judge_supports": 5
+   },
+   "human": {
+    "links": 39,
+    "agree": 17,
+    "human_dns": 15,
+    "human_dns_judge_supports": 11
+   }
+  }
+ },
  "negative_control": {
   "A": {
    "n": 150,

@@ -113,3 +113,11 @@ with one unsupported note, far too few to test H3 or H4. We report that human-on
 (`results/part2.json`, `gold.human_only_H3_random_half`) but keep the judge-based H3 and H4 in the main
 text, labelled provisional. This is a departure from the planned primary analysis, decided after
 seeing the kappas.
+
+## Exploratory analyses added after outcomes were seen (not deviations; reported as exploratory)
+
+- 15 Nov, afternoon IST: H1 robustness (deleting accounts as one cluster; without them; notes to Aug 2026),
+  in `results/part1.json` under `robustness_H1`; report Table 2.
+- 15 Nov, evening IST: H3 sensitivity in `results/part2.json` under `H3_sensitivity`: H3 with each judge
+  alone; a coverage bound for notes with no checkable source; judge leniency by author type on the
+  hand-labelled links. None changes a pre-registered analysis.

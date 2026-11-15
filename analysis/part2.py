@@ -163,6 +163,30 @@ if gold_files:
         "unsupported": sum(notes[i]["grp"] == g and hn[i] == "unsupported" for i in hn if i in rnd and i in notes),
         "supported": sum(notes[i]["grp"] == g and hn[i] == "supported" for i in hn if i in rnd and i in notes)} for g in ("ai", "human")}
 
+# Exploratory H3 sensitivity (not pre-registered, added after the final review).
+sens = res["H3_sensitivity"] = {}
+# (a) Each judge alone: does the sign of H3 depend on which judge is used?
+for name in "ABC":
+    r_ = [(n["tweetId"], n["grp"], n) for n in notes.values() if n[name] in ("supported", "unsupported")]
+    sens[f"judge{name}_alone"] = boot_diff(r_, lambda n, name=name: n[name] == "unsupported")
+# (b) Coverage: AI notes more often have a checkable source. Using Judge A over all 400 + 400 notes, how unsupported
+# would AI notes without a checkable source have to be (human ones counted as fully supported) for AI to tie humans?
+cnt = {g: {"n": sum(n["grp"] == g for n in notes.values()),
+           "uns": sum(n["grp"] == g and n["A"] == "unsupported" for n in notes.values()),
+           "nc": sum(n["grp"] == g and n["A"] == "no_checkable" for n in notes.values())} for g in ("ai", "human")}
+sens["coverage"] = {**cnt, "break_even_rate_ai_uncheckable": (cnt["human"]["uns"] / cnt["human"]["n"] * cnt["ai"]["n"] - cnt["ai"]["uns"]) / cnt["ai"]["nc"]}
+# (c) Is judge leniency the same for AI- and human-cited links? Uses the authors' labels (DEVIATIONS D7).
+if gold_files:
+    for name, j in (("A", A), ("B", B), ("C", C)):
+        out = {}
+        for g in ("ai", "human"):
+            k = [x for x in gold[0] if x[0] in notes and notes[x[0]]["grp"] == g]
+            jl = {x: url_label(j, x[0], x[1]) for x in k}
+            hd = [x for x in k if gold[0][x] == "DOES_NOT_SUPPORT"]
+            out[g] = {"links": len(k), "agree": sum(jl[x] == gold[0][x] for x in k), "human_dns": len(hd),
+                      "human_dns_judge_supports": sum(jl[x] in ("SUPPORTS", "PARTIAL") for x in hd)}
+        sens[f"leniency_judge{name}"] = out
+
 # Negative control (DEVIATIONS D4): share of mismatched note-page pairs a judge still calls support.
 res["negative_control"] = {}
 for name, j in (("A", A), ("B", B), ("C", C)):
