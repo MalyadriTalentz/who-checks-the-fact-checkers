@@ -34,9 +34,10 @@ verdict = [
 ]
 
 TITLE = "The Notes That Vanish: Self-Deletion Inflates AI Fact-Checkers' Track Record on X, but Their Sources Hold Up"
-AUTHORS = ["Malyadri Chowdary Marneni", "Poojitha G", "Chandana R"]
-AFFIL = "Student researcher, Masters' Union University"  # Malyadri; co-author affiliations not yet given
-AUTHOR = AUTHORS[0] + "\u00b9, " + ", ".join(AUTHORS[1:]) + "\n\u00b9" + AFFIL
+AUTHORS = ["Malyadri Chowdary Marneni\u00b9", "Poojitha G\u00b2", "Chandana R"]  # Chandana's affiliation not yet given
+AFFILS = ["\u00b9Student researcher, Masters' Union University",
+          "\u00b2Sapthagiri NPS University; Research intern, Indian Institute of Management Bangalore"]
+AUTHOR = ", ".join(AUTHORS) + "\n" + "   ".join(AFFILS)
 ABSTRACT = (
     f"Roughly one in six Community Notes written by AI on X quietly disappears. AI writers now draft about half of all new "
     f"notes, and every published comparison scores them by how often raters mark their surviving notes Helpful. This "
@@ -386,7 +387,8 @@ L = [r"""\documentclass[10.5pt]{article}
 {\sffamily\bfseries\LARGE\color{ink} """ + esc(TITLE) + r"""\par}
 \vspace{8pt}
 {\large """ + esc(AUTHOR.split("\n")[0]) + r"""\par}
-{\small\itshape """ + esc(AUTHOR.split("\n")[1]) + r""" \quad$\cdot$\quad AI x Epistemics Research Sprint, Apart Research, November 2026\par}
+{\small\itshape """ + r"\\".join(esc(x) for x in AFFILS) + r"""\par}
+\vspace{2pt}{\footnotesize AI x Epistemics Research Sprint, Apart Research, November 2026\par}
 \end{center}
 \vspace{4pt}
 \begin{tcolorbox}[colback=soft,colframe=soft,boxrule=0pt,arc=2pt,left=10pt,right=10pt,top=6pt,bottom=6pt]
