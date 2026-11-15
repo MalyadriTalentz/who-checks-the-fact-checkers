@@ -34,7 +34,9 @@ verdict = [
 ]
 
 TITLE = "The Notes That Vanish: Self-Deletion Inflates AI Fact-Checkers' Track Record on X, but Their Sources Hold Up"
-AUTHOR = "Malyadri Chowdary Marneni\nStudent researcher, Masters' Union University"
+AUTHORS = ["Malyadri Chowdary Marneni", "Poojitha G", "Chandana R"]
+AFFIL = "Student researcher, Masters' Union University"  # Malyadri; co-author affiliations not yet given
+AUTHOR = AUTHORS[0] + "\u00b9, " + ", ".join(AUTHORS[1:]) + "\n\u00b9" + AFFIL
 ABSTRACT = (
     f"Roughly one in six Community Notes written by AI on X quietly disappears. AI writers now draft about half of all new "
     f"notes, and every published comparison scores them by how often raters mark their surviving notes Helpful. This "
@@ -117,7 +119,7 @@ para("The hypotheses, definitions, sample size, judge design and analysis were w
      "DEVIATIONS.md (seven entries, covering judge substitutions forced by usage limits and API errors, and the reduced "
      "human check described below).")
 h3("Data and definitions (Part 1)")
-para(f"I used X's public Community Notes release of 14 November 2026: the note, note-status-history and user-enrolment "
+para(f"We used X's public Community Notes release of 14 November 2026: the note, note-status-history and user-enrolment "
      f"files. The window is notes created from 2 September 2025 (first AI writer admitted) to 31 October 2026. An AI note is "
      f"one whose author is enrolled as an API writer ({G['ai']['authors']} writers with notes in the window). One account "
      f"that writes collaborative notes ({f0(G['collab']['notes'])} notes) is analysed separately. The status-history file "
@@ -145,7 +147,7 @@ para("Two checks test the judges. In a negative control, 150 notes were each pai
      "a different post; a sound judge should almost never call such a page support. An earlier run of GPT-5.6 on 110 pairs, "
      "stopped by a usage limit, gives an extra agreement check. A human check was planned (see Limitations).")
 h3("Rater blindness (Part 3)")
-para(f"For the same notes I took all {f0(90742)} public ratings and computed, per note, the share of raters who ticked "
+para(f"For the same notes we took all {f0(90742)} public ratings and computed, per note, the share of raters who ticked "
      "\"good sources\" and the share who ticked \"sources missing or unreliable\". H4 asks whether these shares differ between "
      "notes the judges agree are supported and notes they agree are unsupported, with ±5 points as the equivalence margin.")
 
@@ -230,7 +232,7 @@ para("Raters cannot be the only check on sources. Their source tags barely separ
      "its quote verification and negative control, is cheap enough to run on every note before it is shown, for AI and "
      "human writers alike.")
 h3("Limitations")
-bullet("Judges are LLMs. They agree only moderately with each other, and the human check is small: one labeller (the author) "
+bullet("Judges are LLMs. They agree only moderately with each other, and the human check is small: one labeller "
        "on 60 notes, half of them chosen because Judge A flagged them, instead of the planned two labellers on 150 notes "
        "(DEVIATIONS D7). Results are reported for each judge rule so readers can see how much they move.")
 bullet(f"Coverage is uneven. Only {pc(ok_share['ai'], 0)} of AI-cited and {pc(ok_share['human'], 0)} of human-cited links "
@@ -293,9 +295,9 @@ para("PREREG.md was committed before any outcome was read. DEVIATIONS.md records
      "enriched human check. No hypothesis, outcome definition or primary analysis was changed.")
 
 h2("LLM Usage Statement")
-para("The author designed the study, set the hypotheses, made every analysis decision and verified each reported number "
+para("The authors designed the study, set the hypotheses, made every analysis decision and verified each reported number "
      "against the files in results/. Claude Code was used as an AI assistant for implementation and writing support. Three "
-     "LLMs also serve as judges inside the method, as described in Section 3. Human labels were made by the author.")
+     "LLMs also serve as judges inside the method, as described in Section 3. Human labels were made by the authors.")
 
 # --- render onto the template ---
 doc = docx.Document("cache/tmp/template.docx")

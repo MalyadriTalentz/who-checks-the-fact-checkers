@@ -19,8 +19,8 @@
 \begin{center}
 {\sffamily\bfseries\LARGE\color{ink} The Notes That Vanish: Self-Deletion Inflates AI Fact-Checkers' Track Record on X, but Their Sources Hold Up\par}
 \vspace{8pt}
-{\large Malyadri Chowdary Marneni\par}
-{\small\itshape Student researcher, Masters' Union University \quad$\cdot$\quad AI x Epistemics Research Sprint, Apart Research, November 2026\par}
+{\large Malyadri Chowdary Marneni¹, Poojitha G, Chandana R\par}
+{\small\itshape ¹Student researcher, Masters' Union University \quad$\cdot$\quad AI x Epistemics Research Sprint, Apart Research, November 2026\par}
 \end{center}
 \vspace{4pt}
 \begin{tcolorbox}[colback=soft,colframe=soft,boxrule=0pt,arc=2pt,left=10pt,right=10pt,top=6pt,bottom=6pt]
@@ -58,7 +58,7 @@ All AI-versus-human comparisons above score notes by rater outcomes. None of the
 The hypotheses, definitions, sample size, judge design and analysis were written down and committed before any outcome data was read (PREREG.md, first commit of the repository). Every later change is logged with its reason in DEVIATIONS.md (seven entries, covering judge substitutions forced by usage limits and API errors, and the reduced human check described below).
 
 \subsection*{Data and definitions (Part 1)}
-I used X's public Community Notes release of 14 November 2026: the note, note-status-history and user-enrolment files. The window is notes created from 2 September 2025 (first AI writer admitted) to 31 October 2026. An AI note is one whose author is enrolled as an API writer (39 writers with notes in the window). One account that writes collaborative notes (55,917 notes) is analysed separately. The status-history file keeps every note ever created, while the notes file drops deleted ones, so a note present in the first and absent from the second counts as deleted by its author. A note is ever Helpful if it reached Currently Rated Helpful (CRH) at any point, and has lost Helpful if it was ever CRH but is not now. Intervals are author-cluster bootstraps (2,000 resamples, fixed seed) for group differences and Wilson intervals for single rates.
+We used X's public Community Notes release of 14 November 2026: the note, note-status-history and user-enrolment files. The window is notes created from 2 September 2025 (first AI writer admitted) to 31 October 2026. An AI note is one whose author is enrolled as an API writer (39 writers with notes in the window). One account that writes collaborative notes (55,917 notes) is analysed separately. The status-history file keeps every note ever created, while the notes file drops deleted ones, so a note present in the first and absent from the second counts as deleted by its author. A note is ever Helpful if it reached Currently Rated Helpful (CRH) at any point, and has lost Helpful if it was ever CRH but is not now. Intervals are author-cluster bootstraps (2,000 resamples, fixed seed) for group differences and Wilson intervals for single rates.
 
 H1 (survivorship) compares the AI-minus-human difference in ever-Helpful rate computed on surviving notes only, as published comparisons do, with the same difference on all notes. H2 (reversal) compares how often ever-Helpful notes lose that status, within posts that have both an AI and a human ever-Helpful note (5,487 posts). The smallest effect of interest was fixed at 5 points.
 
@@ -70,7 +70,7 @@ Each pair was judged with one frozen prompt that asks whether the cited page sup
 Two checks test the judges. In a negative control, 150 notes were each paired with a readable page cited by a note on a different post; a sound judge should almost never call such a page support. An earlier run of GPT-5.6 on 110 pairs, stopped by a usage limit, gives an extra agreement check. A human check was planned (see Limitations).
 
 \subsection*{Rater blindness (Part 3)}
-For the same notes I took all 90,742 public ratings and computed, per note, the share of raters who ticked ``good sources'' and the share who ticked ``sources missing or unreliable''. H4 asks whether these shares differ between notes the judges agree are supported and notes they agree are unsupported, with ±5 points as the equivalence margin.
+For the same notes we took all 90,742 public ratings and computed, per note, the share of raters who ticked ``good sources'' and the share who ticked ``sources missing or unreliable''. H4 asks whether these shares differ between notes the judges agree are supported and notes they agree are unsupported, with ±5 points as the equivalence margin.
 
 \section*{4. Results}
 \subsection*{Part 1: deletion flatters AI writers' track record}
@@ -105,7 +105,7 @@ Raters cannot be the only check on sources. Their source tags barely separate su
 
 \subsection*{Limitations}
 \begin{itemize}
-\item Judges are LLMs. They agree only moderately with each other, and the human check is small: one labeller (the author) on 60 notes, half of them chosen because Judge A flagged them, instead of the planned two labellers on 150 notes (DEVIATIONS D7). Results are reported for each judge rule so readers can see how much they move.
+\item Judges are LLMs. They agree only moderately with each other, and the human check is small: one labeller on 60 notes, half of them chosen because Judge A flagged them, instead of the planned two labellers on 150 notes (DEVIATIONS D7). Results are reported for each judge rule so readers can see how much they move.
 \item Coverage is uneven. Only 54\% of AI-cited and 44\% of human-cited links could be read, so Part 2 describes notes with readable sources; videos, posts and blocked pages are not covered.
 \item The citation sample only includes notes that reached Helpful status on posts that both kinds of writer noted, so it says nothing about the sourcing of notes that never became Helpful.
 \item Linking the deleting accounts to X's Deletion Model is an inference from timing and volume; X hashes writer ids.
@@ -152,6 +152,6 @@ Personal data: all data is public. X publishes writer and rater ids only in hash
 PREREG.md was committed before any outcome was read. DEVIATIONS.md records seven changes: D1 a rule for the collaborative-note account; D2 judges run through command-line clients after the planned paid API had no credit; D3 a third judge; D4 the negative control (added, not replacing anything); D5 Judge B replaced after a usage limit, with its 110 judgments kept as a check; D6 a higher token cap and streamed replies for the sponsor-API judges; D7 the reduced, enriched human check. No hypothesis, outcome definition or primary analysis was changed.
 
 \section*{LLM Usage Statement}
-The author designed the study, set the hypotheses, made every analysis decision and verified each reported number against the files in results/. Claude Code was used as an AI assistant for implementation and writing support. Three LLMs also serve as judges inside the method, as described in Section 3. Human labels were made by the author.
+The authors designed the study, set the hypotheses, made every analysis decision and verified each reported number against the files in results/. Claude Code was used as an AI assistant for implementation and writing support. Three LLMs also serve as judges inside the method, as described in Section 3. Human labels were made by the authors.
 
 \end{document}

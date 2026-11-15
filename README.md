@@ -3,7 +3,7 @@
 An independent reliability audit of AI-written Community Notes on X.
 Entry for the Apart Research AI x Epistemics Research Sprint, 13 to 15 November 2026
 (Track 4: Open Track; Track 2: Trust Infrastructure).
-Author: Malyadri Chowdary Marneni, student researcher, Masters' Union University.
+Authors: Malyadri Chowdary Marneni (student researcher, Masters' Union University), Poojitha G, Chandana R.
 
 AI note writers now write about three in ten Community Notes. Published comparisons score them by
 how often raters mark their notes Helpful. This project measures two things the ratings do not:
@@ -17,7 +17,7 @@ every change since is in [`DEVIATIONS.md`](DEVIATIONS.md).
 **Nothing is pre-existing.** All code, the pre-registration, the sample, the judgments and the
 analysis were produced during the sprint; the first commit is the frozen pre-registration. The data
 is X's public Community Notes release. Code and drafting used an AI assistant (Claude Code); the
-author is responsible for everything here.
+authors are responsible for everything here.
 
 ## Layout
 

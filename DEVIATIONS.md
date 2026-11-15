@@ -82,3 +82,7 @@ This was set before any human label existed.
 Addendum to D6 (~12:30 IST): the last 43 Qwen pairs (mostly long pages) kept failing with HTTP 504
 gateway timeouts. Sponsor-API calls are now streamed, which only changes how the reply is delivered,
 not the prompt, model, temperature or token cap.
+
+Correction to D7 (15 Nov, ~13:30 IST): the team has three authors (Malyadri Chowdary Marneni,
+Poojitha G, Chandana R), not one. The single-labeller design stands unless a second author labels
+the same sheet, in which case human-human kappa is reported as PREREG section 8 planned.
