@@ -168,9 +168,9 @@ para("Two checks test the judges. In a negative control, 150 notes were each pai
      "a different post; a sound judge should almost never call such a page support. An earlier run of GPT-5.6 on 110 pairs, "
      "stopped by a usage limit, gives an extra agreement check. A harder control, added during the sprint (DEVIATIONS D8), "
      "takes pairs that all three judges called supported, changes one number in the note (years by three, other numbers "
-     "by half again) and asks whether the judges notice that the page no longer backs it. Finally, the authors hand-labelled "
+     "by half again) and asks whether the judges notice that the page no longer backs it. Finally, two authors independently hand-labelled "
      "106 links from 60 notes, half drawn at random and half from notes Judge A flagged, without seeing which was which "
-     "(DEVIATIONS D7).")
+     "or each other's labels (DEVIATIONS D7).")
 h3("Rater blindness (Part 3)")
 para(f"For the same notes we took all {f0(90742)} public ratings and computed, per note, the share of raters who ticked "
      "\"good sources\" and the share who ticked \"sources missing or unreliable\". H4 asks whether these shares differ between "
@@ -180,7 +180,8 @@ h2("4. Results")
 S.append(("box", "Results in brief. (1) Counting deleted notes halves the AI advantage in reaching Helpful status; the "
     "effect comes from six accounts that delete about a fifth of their notes. (2) Once Helpful, AI notes keep that status "
     "as well as human notes. (3) Among notes with a readable source, AI notes are not more often unsupported, but this "
-    "rests on LLM judges that agree only moderately with human labels and miss altered details. (4) Whether raters' source "
+    "rests on LLM judges that agree only moderately with human labels (two human labellers agreed no better with each "
+    "other) and miss altered details. (4) Whether raters' source "
     "tags track support could not be settled."))
 h3("Part 1: deletion flatters AI writers' track record")
 fig("results/fig1_survivorship.png",
@@ -292,6 +293,16 @@ para(f"Against the authors' hand labels on {gA['n']} links from 60 notes (DEVIAT
      "(Judge A's figure is flattered, since half the sheet was chosen from its flags). The H3 rates are therefore best read as "
      "lower bounds, and the judges are weakest exactly where a fact-checker most needs them.")
 HO = GD["human_only_H3_random_half"]
+para(f"The task is hard for humans too. The second author labelled the same links independently; the two agreed on "
+     f"{GD['human_human_agree']['exact']} of {GD['human_human_agree']['n']} (kappa {GD['human_human_kappa_url']:.2f}; "
+     f"{GD['human_human_kappa_url_random_half']:.2f} on the random half), rising to {GD['human_human_kappa_dns_vs_rest']:.2f} when "
+     f"only \"does not support\" is separated from everything else, the distinction H3 rests on. The commonest disagreement "
+     f"({GD['human_human_agree']['confusion'].get('SUPPORTS|PARTIAL', 0)} links) was the first author's SUPPORTS against the "
+     f"second's PARTIAL. Judge A agrees with the first author more closely than the two authors agree with each other, while all "
+     f"three judges agree less with the stricter second author ({GD['judgeC_vs_human2_kappa_url']:.2f} to "
+     f"{GD['judgeA_vs_human2_kappa_url']:.2f}). Against the pre-registered human consensus, the {GD['consensus_links']} links "
+     f"both authors labelled alike, kappa was {GD['judgeA_vs_consensus_kappa_url']:.2f}, {GD['judgeB_vs_consensus_kappa_url']:.2f} "
+     f"and {GD['judgeC_vs_consensus_kappa_url']:.2f} for Judges A, B and C.")
 para(f"This triggers a pre-registered gate. PREREG section 6 says that if judge-human kappa at note level is below 0.60, "
      f"H3 and H4 are reported on the human-labelled set only. Note-level kappa was {GD['judgeA_vs_human1_kappa_note']:.2f}, "
      f"{GD['judgeB_vs_human1_kappa_note']:.2f} and {GD['judgeC_vs_human1_kappa_note']:.2f} for Judges A, B and C on all 60 notes, and "
@@ -343,11 +354,12 @@ para("Raters cannot be the only check on sources. With only 26 unsupported notes
      "writers alike. It catches sources that are off-topic or say something else, but, as the altered-number control shows, "
      "not wrong details, which still need a human or a stricter, claim-by-claim check.")
 para("Not everything went as planned. H1 held but fell short of the 5-point effect we set in advance; H4 could not be "
-     "settled with 26 unsupported notes; the judges failed the harder altered-number control; the human check was cut from two labellers on 150 notes to one on 60; and two "
+     "settled with 26 unsupported notes; the judges failed the harder altered-number control; the human check was cut from two labellers on 150 notes to two on 60; and two "
      "judges had to be swapped mid-sprint. All of these are recorded in DEVIATIONS.md as they happened.")
 h3("Limitations")
 bullet("Judges are LLMs and agree only moderately with each other and with the human labels (kappa 0.22 to 0.37 on the "
-       "random half, per link; note-level kappa is also below the pre-registered 0.60 gate), so H3 and H4 are provisional (D9). The human check has one labeller on 60 notes, so there is no human-human agreement figure. Results are "
+       "random half, per link; note-level kappa is also below the pre-registered 0.60 gate), so H3 and H4 are provisional (D9). The human check covers 60 notes, and the two authors agree only moderately with each other (kappa 0.29), so the labels "
+       "are not a clean ground truth. Results are "
        "given for each judge rule so readers can see how much they move.")
 bullet("The judges miss most altered details (Section 4), so the unsupported rates are lower bounds that cover "
        "sources off the note's main point, not factual slips in dates or figures.")
@@ -428,7 +440,7 @@ S.append(("table", (["Writer (hashed id)", "Notes; first month", "Deleted / ever
 h2("LLM Usage Statement")
 para("The authors designed the study, set the hypotheses, made every analysis decision and verified each reported number "
      "against the files in results/ and audit/. Claude Code was used as an AI assistant for implementation and writing support. Three "
-     "LLMs also serve as judges inside the method, as described in Section 3. The labels in the human check (DEVIATIONS D7) are the authors' own; an AI tool was used only to tidy the wording of the labellers' working notes, which are not released.")
+     "LLMs also serve as judges inside the method, as described in Section 3. The labels in the human check (DEVIATIONS D7) are the authors' own; an AI tool was used only to tidy the wording of the two labellers' working notes, which are not released.")
 
 # --- render onto the template ---
 doc = docx.Document("cache/tmp/template.docx")

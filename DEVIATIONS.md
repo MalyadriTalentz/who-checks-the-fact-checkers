@@ -121,3 +121,11 @@ seeing the kappas.
 - 15 Nov, evening IST: H3 sensitivity in `results/part2.json` under `H3_sensitivity`: H3 with each judge
   alone; a coverage bound for notes with no checkable source; judge leniency by author type on the
   hand-labelled links. None changes a pre-registered analysis.
+
+Second labeller for D7 (15 Nov, evening IST): a second author (Poojitha G) labelled the same 106
+links independently, without seeing the first author's labels or the judges' labels
+(`audit/gold_labels_2.csv`; working-notes column not released, as for labeller 1). This restores the
+human-human kappa PREREG section 8 planned. Reported in `results/part2.json` under `gold`:
+human-human kappa, kappa on "does not support" vs the rest (descriptive, added after seeing the
+first kappa), judge vs second labeller, and judge vs the human consensus (links both label alike),
+which is the comparison PREREG section 6 names. The human-only H3 in D9 still uses labeller 1.

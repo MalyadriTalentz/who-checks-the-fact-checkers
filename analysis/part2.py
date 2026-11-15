@@ -135,6 +135,19 @@ if gold_files:
     if len(gold) >= 2:
         k = sorted(set(gold[0]) & set(gold[1]))
         res["gold"]["human_human_kappa_url"] = kappa([gold[0][x] for x in k], [gold[1][x] for x in k])
+        rnd2 = set(json.load(open("audit/gold_v2_design.json"))["random"])
+        kr2 = [x for x in k if x[0] in rnd2]
+        res["gold"]["human_human_kappa_url_random_half"] = kappa([gold[0][x] for x in kr2], [gold[1][x] for x in kr2])
+        res["gold"]["human_human_agree"] = {"n": len(k), "exact": sum(gold[0][x] == gold[1][x] for x in k),
+                                            "confusion": dict(collections.Counter(f"{gold[0][x]}|{gold[1][x]}" for x in k))}
+        dns = lambda l: "DNS" if l == "DOES_NOT_SUPPORT" else "other"  # descriptive: agreement on the label H3 rests on
+        res["gold"]["human_human_kappa_dns_vs_rest"] = kappa([dns(gold[0][x]) for x in k], [dns(gold[1][x]) for x in k])
+        cons = [x for x in k if gold[0][x] == gold[1][x]]  # PREREG s6: judge vs human consensus (links both humans label alike)
+        res["gold"]["consensus_links"] = len(cons)
+        for name, j in (("A", A), ("B", B), ("C", C)):
+            res["gold"][f"judge{name}_vs_consensus_kappa_url"] = kappa([url_label(j, x[0], x[1]) for x in cons], [gold[0][x] for x in cons])
+            res["gold"][f"judge{name}_vs_human2_kappa_url"] = kappa([url_label(j, x[0], x[1]) for x in k], [gold[1][x] for x in k])
+            res["gold"][f"judge{name}_vs_human2_kappa_url_random_half"] = kappa([url_label(j, x[0], x[1]) for x in kr2], [gold[1][x] for x in kr2])
     for name, j in (("A", A), ("B", B), ("C", C)):
         k = [x for x in gold[0] if x[1]]
         res["gold"][f"judge{name}_vs_human1_kappa_url"] = kappa([url_label(j, x[0], x[1]) for x in k], [gold[0][x] for x in k])
