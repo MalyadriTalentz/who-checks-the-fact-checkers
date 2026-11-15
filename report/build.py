@@ -378,7 +378,7 @@ S.append(("table", (["Writer (hashed id)", "Notes; first month", "Deleted / ever
 h2("LLM Usage Statement")
 para("The authors designed the study, set the hypotheses, made every analysis decision and verified each reported number "
      "against the files in results/. Claude Code was used as an AI assistant for implementation and writing support. Three "
-     "LLMs also serve as judges inside the method, as described in Section 3. The labels in the human check (DEVIATIONS D7) are the authors' own; an AI tool was used only to tidy the wording of the free-text comments that accompany them.")
+     "LLMs also serve as judges inside the method, as described in Section 3. The labels in the human check (DEVIATIONS D7) are the authors' own; an AI tool was used only to tidy the wording of the labellers' working notes, which are not released.")
 
 # --- render onto the template ---
 doc = docx.Document("cache/tmp/template.docx")
