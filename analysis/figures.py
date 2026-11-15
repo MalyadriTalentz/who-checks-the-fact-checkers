@@ -12,19 +12,24 @@ AI, HU = "#c0392b", "#2c6fbb"
 p1 = json.load(open("results/part1.json"))
 g = p1["groups"]
 
-# Figure 1: deletion and ever-Helpful, surviving-only vs all notes.
-fig, ax = plt.subplots(figsize=(6.2, 2.6))
-metrics = [("deleted", "Deleted by author"), ("ever_helpful_surviving_only", "Ever Helpful\n(surviving only)"),
-           ("ever_helpful_all_notes", "Ever Helpful\n(incl. deleted)"), ("lost_helpful_among_ever_helpful", "Lost Helpful\n(of ever Helpful)")]
-for i, (k, label) in enumerate(metrics):
-    for off, grp, col, name in ((-0.18, "ai", AI, "AI writers"), (0.18, "human", HU, "Human writers")):
-        est, lo, hi = (100 * v for v in g[grp][k])
-        ax.bar(i + off, est, 0.34, color=col, label=name if i == 0 else None)
-        ax.errorbar(i + off, est, [[est - lo], [hi - est]], color="k", lw=0.8, capsize=2)
-        ax.text(i + off, est + 0.6, f"{est:.1f}", ha="center", fontsize=7.5)
-ax.set_xticks(range(len(metrics)), [m[1] for m in metrics]); ax.set_ylabel("% of notes")
-ax.legend(frameon=False, loc="upper center", ncol=2, bbox_to_anchor=(0.5, 1.15)); ax.set_ylim(0, 21); fig.tight_layout()
-fig.savefig("results/fig1_survivorship.png", dpi=220)
+# Figure 1: ever-Helpful on surviving notes vs all notes, for all AI, human, and AI split by whether the writer deletes.
+X = p1["exploratory_ai_by_deletion"]
+groups = [("All AI writers", g["ai"]), ("Human writers", g["human"]),
+          (f"{X['deleting_writers']['writers']} deleting\nAI accounts", X["deleting_writers"]),
+          (f"{X['non_deleting_writers']['writers']} other\nAI writers", X["non_deleting_writers"])]
+fig, ax = plt.subplots(figsize=(6.2, 2.7))
+for i, (label, d) in enumerate(groups):
+    col = HU if label.startswith("Human") else AI
+    for off, k, alpha, name in ((-0.18, "ever_helpful_surviving_only", 0.45, "Surviving notes only"), (0.18, "ever_helpful_all_notes", 1.0, "All notes, incl. deleted")):
+        est, lo, hi = (100 * v for v in d[k])
+        ax.bar(i + off, est, 0.34, color=col, alpha=alpha, label=name if i == 0 else None)
+        ax.text(i + off, est + 0.4, f"{est:.1f}", ha="center", fontsize=7.5)
+    ax.text(i, -2.6, f"{100 * d['deleted'][0]:.1f}% deleted", ha="center", fontsize=7.5, color="#444")
+ax.set_xticks(range(len(groups)), [x[0] for x in groups]); ax.set_ylabel("% ever rated Helpful")
+ax.set_ylim(-3.5, 18.5); ax.axhline(0, color="k", lw=0.5)
+leg = ax.legend(frameon=False, loc="upper center", ncol=2, bbox_to_anchor=(0.5, 1.16))
+for h in leg.legend_handles: h.set_color("#777")
+fig.tight_layout(); fig.savefig("results/fig1_survivorship.png", dpi=220)
 
 # Figure 2: monthly AI share of notes and deletion rate by group.
 rows = list(csv.DictReader(open("results/monthly.csv")))
