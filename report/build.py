@@ -216,8 +216,8 @@ para(f"Raters ticked \"good sources\" on {pc(g['supported'])} of ratings for sup
 
 h2("5. Discussion and Limitations")
 para("Three lessons follow, and the first matters well beyond Community Notes.")
-para("An AI system that can withdraw its own failures will look more reliable than it is. The deleting accounts look like "
-     "the best AI writers on surviving notes and among the worst once deletions are counted. Deletion is a reasonable design "
+para("An AI system that can withdraw its own failures will look more reliable than it is. The deleting accounts look slightly better than "
+     "the other AI writers on surviving notes and clearly worse once deletions are counted. Deletion is a reasonable design "
      "choice in itself; X's paper [4] justifies it as saving raters' attention. The problem is comparing writers on surviving "
      "notes when only some of them delete. The same trap awaits anyone who audits AI agents from logs the agent can edit. "
      "Platforms should publish deletion rates next to hit rates, and evaluations of AI writers should count every note "
