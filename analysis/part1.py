@@ -151,6 +151,9 @@ res["robustness_H1"] = {
                          "deleted_human": float(db.execute(f"select avg(deleted::int) from n where grp='human' {old_q}").fetchone()[0])},
 }
 
+# Drawn last so earlier bootstrap intervals keep their random draws.
+res["robustness_H1"]["deleting_accounts_one_cluster"]["diff_all_notes"] = boot(adv_all, rows_where("ai", merge=True), H)
+
 json.dump(res, open(OUT / "part1.json", "w"), indent=1)
 db.execute(f"""copy (select month, grp, count(*) notes, avg(deleted::int) deleted_rate, avg(eh::int) ever_helpful_rate,
     sum((eh and not_crh_now)::int) * 1.0 / nullif(sum(eh::int), 0) lost_rate

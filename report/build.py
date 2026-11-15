@@ -85,7 +85,7 @@ para("So far the answer has come from one number: how often raters mark AI notes
      "three ratings [4]. And it measures whether a note persuades raters, not whether the sources it cites say what it "
      "claims. Raters are not required to open those sources. A fact-checker that sounds right but cites pages that do not "
      "back it up would pass this test, which is exactly the failure an epistemic system most needs to catch.")
-para("Forecasters will recognise the first problem. A Helpful rate computed on surviving notes is an improper score: like "
+para("Forecasters will recognise the first problem. A Helpful rate computed on surviving notes behaves like an improper score: like "
      "a forecaster allowed to delete predictions before they resolve, a writer can raise it by withdrawing likely failures, "
      "without becoming any more accurate. Formally, if each note would reach Helpful with probability p and the writer "
      "deletes, before rating, every note whose p is below a threshold t, the surviving-note rate becomes the average p among "
@@ -238,11 +238,11 @@ para("The effect belongs to a design, not to AI writers in general (Table 2). Wi
 rg = lambda d: f"{pt(d['est'])} [{pt(d['lo'])}, {pt(d['hi'])}]"
 S.append(("table", (["Analysis", "Shrinkage, points", "AI minus human, all notes"], [
     ["Pre-registered: each writer a cluster", rg(H1["survivorship_gap"]), rg(H1["diff_all_notes"])],
-    ["Deleting accounts as one cluster", rg(RB["deleting_accounts_one_cluster"]["survivorship_gap"]), "as above"],
+    ["Deleting accounts as one cluster", rg(RB["deleting_accounts_one_cluster"]["survivorship_gap"]), rg(RB["deleting_accounts_one_cluster"]["diff_all_notes"])],
     [f"Without the {X['deleting_writers']['writers']} deleting accounts", rg(RB["without_deleting_accounts"]["survivorship_gap"]),
      rg(RB["without_deleting_accounts"]["diff_all_notes"])],
     ["Notes created to August 2026", rg(RB["notes_to_2026_08"]["survivorship_gap"]), rg(RB["notes_to_2026_08"]["diff_all_notes"])],
-], "Table 2. H1 under exploratory checks (not pre-registered). Brackets: 95% author-cluster bootstrap intervals.")))
+], "Table 2. H1 under exploratory checks (rows 2 to 4 not pre-registered). Brackets: 95% author-cluster bootstrap intervals.")))
 h3("Part 2: no detectable gap in whether sources support the notes")
 para(f"AI notes cited a readable source far more often: {pc(ok_share['ai'], 0)} of AI-cited links could be read and judged "
      f"against {pc(ok_share['human'], 0)} of human-cited links, and {pc(p2['secondary']['no_checkable_source_judgeA']['human'])} "
@@ -265,10 +265,10 @@ para(f"Among notes with a readable source, AI notes were not more often unsuppor
 SN = p2["H3_sensitivity"]; cv = SN["coverage"]; lc = SN["leniency_judgeC"]
 para(f"Three exploratory checks probe H3. The sign does not depend on the judge: used alone, Judges A, B and C give "
      f"{pt(SN['judgeA_alone']['diff'])}, {pt(SN['judgeB_alone']['diff'])} and {pt(SN['judgeC_alone']['diff'])} points. In the "
-     f"hand-labelled links there is no sign that judges are more lenient towards one kind of writer: of the links the humans "
+     f"hand-labelled links there is no sign that judges are more lenient towards AI notes: of the links the humans "
      f"called unsupported, Judge C passed {lc['ai']['human_dns_judge_supports']} of {lc['ai']['human_dns']} AI-cited and "
-     f"{lc['human']['human_dns_judge_supports']} of {lc['human']['human_dns']} human-cited links, too few for a test. Coverage is "
-     f"the real limit. Over all 800 notes Judge A finds {cv['ai']['uns']} AI and {cv['human']['uns']} human notes unsupported, "
+     f"{lc['human']['human_dns_judge_supports']} of {lc['human']['human_dns']} human-cited links, if anything more lenient towards human notes, but too few for a test. Coverage is "
+     f"the real limit. Using Judge A alone, over all 800 notes it finds {cv['ai']['uns']} AI and {cv['human']['uns']} human notes unsupported, "
      f"while {cv['ai']['nc']} AI and {cv['human']['nc']} human notes have no checkable source. If those notes are unsupported at "
      f"the same rate in both groups, AI notes never come out worse; but if only AI notes' unreadable sources were bad, a rate "
      f"of {pc(cv['break_even_rate_ai_uncheckable'])} among them would close the gap. H3 holds for notes with readable sources "
