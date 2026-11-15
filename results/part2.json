@@ -171,6 +171,24 @@
    "SUPPORTS": 35,
    "DOES_NOT_SUPPORT": 23,
    "UNCHECKABLE": 16
+  },
+  "judgeA_vs_human1_kappa_note": 0.5625000000000001,
+  "judgeA_vs_human1_kappa_note_random_half": 0.0,
+  "judgeB_vs_human1_kappa_note": 0.4352159468438539,
+  "judgeB_vs_human1_kappa_note_random_half": 0.2105263157894734,
+  "judgeC_vs_human1_kappa_note": 0.3043478260869564,
+  "judgeC_vs_human1_kappa_note_random_half": -0.06382978723404263,
+  "human_only_H3_random_half": {
+   "ai": {
+    "notes": 23,
+    "unsupported": 0,
+    "supported": 23
+   },
+   "human": {
+    "notes": 7,
+    "unsupported": 1,
+    "supported": 5
+   }
   }
  },
  "negative_control": {

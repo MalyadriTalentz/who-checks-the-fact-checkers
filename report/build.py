@@ -39,7 +39,7 @@ h4b = H4["helpfulGoodSources_share"]
 verdict = [
     f"Supported ({fp(holm[0])}), but below the 5-point margin, and driven by one group of accounts",
     f"Small difference, AI lower; {fp(holm[1])} after correction (uncorrected {fp(raw[1])}); far inside the 5-point margin",
-    f"No detectable difference ({fp(holm[2])}); point estimate favours AI notes",
+    f"No detectable difference ({fp(holm[2])}); point estimate favours AI notes; provisional (D9)",
     "Inconclusive: interval not inside ±5 points" if not (-0.05 < h4b["lo"] and h4b["hi"] < 0.05) else "Blind: interval inside ±5 points",
 ]
 
@@ -50,19 +50,19 @@ AFFILS = ["\u00b9Student researcher, Masters' Union University",
 AUTHOR = ", ".join(AUTHORS) + "\n" + "   ".join(AFFILS)
 ABSTRACT = (
     f"Roughly one in six Community Notes written by AI on X quietly disappears. AI writers now draft about half of all new "
-    f"notes, and every published comparison scores them by how often raters mark their surviving notes Helpful. This "
-    f"pre-registered audit measures what that score cannot see. Using X's public record of every note from September 2025 "
+    f"notes, and published comparisons score them by how often raters mark their surviving notes Helpful. This "
+    f"pre-registered audit measures what that score cannot see. Using X's public record of notes from September 2025 "
     f"to October 2026 ({f0(G['ai']['notes'])} AI and {f0(G['human']['notes'])} human notes), AI writers deleted "
     f"{pc(G['ai']['deleted'][0])} of their notes against {pc(G['human']['deleted'][0])} for humans. Nearly all of these "
-    f"deletions come from {X['deleting_writers']['writers']} high-volume accounts and begin abruptly in March 2026, matching "
+    f"deletions come from six high-volume accounts and jump in April 2026, a pattern consistent with "
     f"the automatic deletion of likely failures that X describes in its own AI writer. Counting the deleted notes halves the "
     f"AI advantage in reaching Helpful status, from {pt(H1['diff_surviving_only']['est'])} to {pt(H1['diff_all_notes']['est'])} "
     f"points. The second question is whether the notes are true to their sources. Three LLM judges from different vendors "
     f"checked the pages cited by 800 AI and human notes on the same 400 posts; none called any of {NC['A']['n']} deliberately "
     f"mismatched pages support, though they caught few notes with one number altered. Here AI notes held up: they cited a readable source far more often, and were unsupported no "
     f"more often than human notes ({pc(H3['primary_agree_set']['ai'])} vs {pc(H3['primary_agree_set']['human'])}, difference "
-    f"not statistically clear). Raters' own source tags barely told supported from unsupported notes. AI fact-checkers' "
-    f"sources deserve more trust than their survival statistics: evaluations should count deleted notes."
+    f"not statistically clear). Whether raters' own source tags track support could not be settled. Evaluations of AI "
+    f"fact-checkers should count deleted notes, and their sources show no sign of being the weak point."
 )
 assert 150 <= len(ABSTRACT.split()) <= 250, len(ABSTRACT.split())
 
@@ -91,12 +91,12 @@ para("This project audits AI fact-checkers on both blind spots, independently of
      "hypothesis fixed in advance. Its contributions:")
 bullet(f"A survivorship correction on the full public record ({f0(G['ai']['notes'] + G['human']['notes'])} notes). AI "
        f"writers delete notes {G['ai']['deleted'][0] / G['human']['deleted'][0]:.1f} times as often as humans, almost "
-       f"entirely through {X['deleting_writers']['writers']} accounts, and counting those deletions halves their advantage "
+       f"entirely through six large accounts, and counting those deletions halves their advantage "
        "in reaching Helpful status.")
 bullet("A source audit of 800 AI and human notes on the same 400 posts, using three LLM judges from different vendors, a "
        "deterministic quote check and a mismatched-page control. AI notes cite readable sources more often and are not "
        "more often unsupported.")
-bullet("Evidence that raters' source tags barely track verified support, plus a per-writer reliability table and a "
+bullet("A test of whether raters' source tags track verified support (inconclusive), plus a per-writer reliability table and a "
        "one-command script that rebuilds every number from any day's public data.")
 S.append(("table", (["Pre-registered question", "Result (AI minus human)", "Verdict"], [
     ["H1. Does counting deleted notes shrink the AI advantage in reaching Helpful?",
@@ -131,7 +131,7 @@ para("All AI-versus-human comparisons above score notes by rater outcomes. None 
 h2("3. Methods")
 para("The hypotheses, definitions, sample size, judge design and analysis were written down and committed before any "
      "outcome data was read (PREREG.md, first commit of the repository). Every later change is logged with its reason in "
-     "DEVIATIONS.md (eight entries, covering judge substitutions forced by usage limits and API errors, and the reduced "
+     "DEVIATIONS.md (nine entries, covering judge substitutions forced by missing credit, usage limits and API errors, and the reduced "
      "human check described below).")
 h3("Data and definitions (Part 1)")
 para(f"We used X's public Community Notes release of 14 November 2026: the note, note-status-history and user-enrolment "
@@ -176,7 +176,7 @@ fig("results/fig1_survivorship.png",
     f"Figure 1. Share of notes ever rated Helpful, on surviving notes (light) and on all notes including deleted ones "
     f"(dark), for notes created 2 Sep 2025 to 31 Oct 2026 ({f0(G['ai']['notes'])} AI, {f0(G['human']['notes'])} human). "
     f"Below each group: share deleted by the author. The {X['deleting_writers']['writers']} deleting accounts look best on "
-    "surviving notes and worst once deletions count. All 95% Wilson intervals are under 0.4 points.")
+    "surviving notes and worst once deletions count. All 95% Wilson intervals have half-widths under 0.4 points.")
 para(f"AI writers deleted {pc(G['ai']['deleted'][0])} of their notes; human writers deleted {pc(G['human']['deleted'][0])} "
      f"(Figure 1). On surviving notes, AI notes reached Helpful status more often than human notes, {ci(H1['diff_surviving_only'])}. "
      f"Counting deleted notes, the advantage is {ci(H1['diff_all_notes'])}. H1 is supported: the shrinkage is "
@@ -197,7 +197,8 @@ para("Of the two, counting deleted notes is the like-for-like comparison. A huma
 para(f"The effect belongs to a design, not to AI writers in general. Without the {X['deleting_writers']['writers']} deleting "
      f"accounts, the shrinkage disappears ({ci(RB['without_deleting_accounts']['survivorship_gap'])}) and the remaining AI "
      f"writers are ahead of humans by {ci(RB['without_deleting_accounts']['diff_all_notes'])} even with deleted notes counted. "
-     "The deleting accounts look alike (similar volumes, start dates and deletion rates) and may be one operator; treated as "
+     "Six of them look alike (53,000 to 55,000 notes each, starting in November or December 2025, 19 to 20% deleted) and may "
+     "be one operator; the seventh is a 77-note account just over the 5% cutoff. Treated as "
      f"a single cluster, the shrinkage interval becomes {ci(RB['deleting_accounts_one_cluster']['survivorship_gap'])} and no "
      "longer excludes zero, because the population then holds effectively one deleter. Restricting to notes created by "
      f"August 2026, which have had at least ten weeks for deletion, leaves the shrinkage at "
@@ -205,8 +206,8 @@ para(f"The effect belongs to a design, not to AI writers in general. Without the
 para(f"The deletions are not spread across AI writers. {X['deleting_writers']['writers']} accounts delete more than 5% of their "
      f"notes; together they wrote {pc(X['deleting_writers']['notes'] / G['ai']['notes'], 0)} of AI notes and deleted "
      f"{pc(X['deleting_writers']['deleted'][0])} of them, while the other {X['non_deleting_writers']['writers']} AI writers deleted "
-     f"{pc(X['non_deleting_writers']['deleted'][0])}. AI deletion was near zero until March 2026 and then jumped to 15 to 22% a "
-     "month (Figure 2), which fits a deletion policy being switched on rather than a gradual change in writing. This pattern "
+     f"{pc(X['non_deleting_writers']['deleted'][0])}. AI deletion was near zero until February 2026, rose in March and jumped to 15 to 22% a "
+     "month from April (Figure 2), which fits a deletion policy being switched on rather than a gradual change in writing. This pattern "
      "matches the Deletion Model in X's Community Writer [4], although hashed ids mean the accounts cannot be named. "
      "On surviving notes the deleting accounts look slightly better than the other AI writers "
      f"({pc(X['deleting_writers']['ever_helpful_surviving_only'][0])} vs {pc(X['non_deleting_writers']['ever_helpful_surviving_only'][0])} "
@@ -214,9 +215,9 @@ para(f"The deletions are not spread across AI writers. {X['deleting_writers']['w
      f"{pc(X['non_deleting_writers']['ever_helpful_all_notes'][0])}). This split was not pre-registered.")
 fig("results/fig2_monthly.png",
     "Figure 2. Left: AI writers' share of new notes by month. Right: share of each month's notes later deleted by their "
-    "author. AI deletion starts abruptly in March 2026. Recent months have had less time for notes to be deleted, which "
+    "author. AI deletion rises in March 2026 and jumps from April. Recent months have had less time for notes to be deleted, which "
     "may explain part of the fall in the human line; X's deletion model can act as soon as three ratings arrive [4].")
-para(f"Once Helpful, AI notes keep that status at least as well as human notes. Within the 5,487 posts with both kinds of "
+para(f"Once Helpful, AI notes keep that status no worse than human notes. Within the 5,487 posts with both kinds of "
      f"ever-Helpful note, {pc(H2['within_post_rates']['ai'])} of AI notes and {pc(H2['within_post_rates']['human'])} of human "
      f"notes later lost it, a difference of {ci(H2['within_post'])}. The "
      f"difference is small and, after the planned Holm correction, not statistically significant ({fp(holm[1])}); either "
@@ -225,7 +226,7 @@ para(f"Once Helpful, AI notes keep that status at least as well as human notes. 
      "but human notes are older and on different posts; reweighting human notes to the AI notes' months still leaves a "
      f"{pt(H2['month_standardised']['diff'])}-point gap. The same-post comparison, the pre-registered primary, removes "
      "most of that confounding.")
-h3("Part 2: AI notes' sources hold up at least as well")
+h3("Part 2: no detectable gap in whether sources support the notes")
 para(f"AI notes cited a readable source far more often: {pc(ok_share['ai'], 0)} of AI-cited links could be read and judged "
      f"against {pc(ok_share['human'], 0)} of human-cited links, and {pc(p2['secondary']['no_checkable_source_judgeA']['human'])} "
      f"of human notes had no checkable source at all, against {pc(p2['secondary']['no_checkable_source_judgeA']['ai'])} of AI notes. "
@@ -246,8 +247,8 @@ para(f"Among notes with a readable source, AI notes were not more often unsuppor
 para(f"The judges passed the negative control: none of the three called any of the {NC['A']['n']} mismatched pages support "
      f"(Judge A {NC['A']['false_support']}, Judge B {NC['B']['false_support']}, Judge C {NC['C']['false_support']}). Agreement "
      f"between Judges A and B on real pairs was moderate (Cohen's kappa {AG['url_AB_kappa']:.2f} per link, "
-     f"{AG['note_AB_kappa']:.2f} per note). Most disagreements were PARTIAL against SUPPORTS rather than support against no "
-     f"support. On the 110 GPT-5.6 pairs, kappa with Judges A, B and C was {GPT['kappa_vs_A']:.2f}, {GPT['kappa_vs_B']:.2f} and "
+     f"{AG['note_AB_kappa']:.2f} per note). The largest group of disagreements (95 of 234) was PARTIAL against SUPPORTS; only 6 "
+     f"were support against no support. On the 110 GPT-5.6 pairs, kappa with Judges A, B and C was {GPT['kappa_vs_A']:.2f}, {GPT['kappa_vs_B']:.2f} and "
      f"{GPT['kappa_vs_C']:.2f}.")
 GD = p2["gold"]; gA, gB, gC = GD["judgeA_dns"], GD["judgeB_dns"], GD["judgeC_dns"]
 para(f"Against the authors' hand labels on {gA['n']} links from 60 notes (DEVIATIONS D7), kappa was "
@@ -260,6 +261,14 @@ para(f"Against the authors' hand labels on {gA['n']} links from 60 notes (DEVIAT
      f"supported or partly supported, Judge B {gB['human_dns_judge_supports']} and Judge A {gA['human_dns_judge_supports']} "
      "(Judge A's figure is flattered, since half the sheet was chosen from its flags). The H3 rates are therefore best read as "
      "lower bounds, and the judges are weakest exactly where a fact-checker most needs them.")
+HO = GD["human_only_H3_random_half"]
+para(f"This triggers a pre-registered gate. PREREG section 6 says that if judge-human kappa at note level is below 0.60, "
+     f"H3 and H4 are reported on the human-labelled set only. Note-level kappa was {GD['judgeA_vs_human1_kappa_note']:.2f}, "
+     f"{GD['judgeB_vs_human1_kappa_note']:.2f} and {GD['judgeC_vs_human1_kappa_note']:.2f} for Judges A, B and C. The "
+     f"human-labelled set is too small to test anything: in its random half, {HO['ai']['unsupported']} of {HO['ai']['notes']} "
+     f"AI notes and {HO['human']['unsupported']} of {HO['human']['notes']} human notes were unsupported to the humans, in line "
+     "with the judge result but with no power. We therefore keep the judge-based H3 and H4 in the main text and mark them "
+     "provisional (DEVIATIONS D9).")
 para(f"The harder control exposes the judges' limit. In {PC['clean_n']} pairs where one number in the note was changed and the "
      f"new number appears nowhere on the page, Judge A flagged {PC['clean_caught_A']}, Judge B {PC['clean_caught_B']} and "
      f"Judge C {PC['clean_caught_C']}; at least one judge flagged {PC['clean_caught_any']}. Their reasons show why: they check "
@@ -271,7 +280,7 @@ S.append(("box", "What an unsupported Helpful note looks like. An AI note said a
     "that never mentions Columbia. A human note called viral \"hero dog\" rescue clips AI-generated and cited a 2021 "
     "National Geographic article, which is about staged rescues using real animals, not AI. Both notes reached Helpful "
     "status; in both, the claim may well be true, but the cited source does not show it. Both judges agreed on each case."))
-h3("Part 3: raters' source tags barely track verified support")
+h3("Part 3: do raters' source tags track verified support? Inconclusive")
 g, b = H4["helpfulGoodSources_share"], H4["notHelpfulSourcesMissingOrUnreliable_share"]
 para(f"Raters ticked \"good sources\" on {pc(g['supported'])} of ratings for supported notes and {pc(g['unsupported'])} for "
      f"unsupported ones ({ci(g)}), and \"sources missing or unreliable\" on {pc(b['supported'])} and {pc(b['unsupported'])} "
@@ -289,10 +298,10 @@ para("An AI system that can withdraw its own failures will look more reliable th
      "Platforms should publish deletion rates next to hit rates, and evaluations of AI writers should count every note "
      "submitted, as X's own quota system already does.")
 para("AI fact-checkers' sourcing is not the weak point. On posts where both an AI and a human note reached Helpful status, "
-     "AI notes more often cite something a reader can check, and what they cite supports them at least as often. Worries "
+     "AI notes more often cite something a reader can check, and what they cite is unsupported no more often, within a detectable difference of about 7 points. Worries "
      "that AI notes win ratings with confident but unsupported claims are not borne out in this sample.")
-para("Raters cannot be the only check on sources. Their source tags barely separate supported from unsupported notes, "
-     "and the tag meant to flag bad sources did not move at all. An automated source check like the one used here, with "
+para("Raters cannot be the only check on sources. With only 26 unsupported notes we could not show that "
+     "their source tags separate supported from unsupported notes. An automated source check like the one used here, with "
      f"its quote verification and negative control, cost about {100 * cost_b:.1f} US cents per cited link with Judge B and "
      f"{100 * cost_c:.1f} cents with Judge C here, cheap enough to run on every note before it is shown, for AI and human "
      "writers alike. It catches sources that are off-topic or say something else, but, as the altered-number control shows, "
@@ -302,7 +311,7 @@ para("Not everything went as planned. H1 held but fell short of the 5-point effe
      "judges had to be swapped mid-sprint. All of these are recorded in DEVIATIONS.md as they happened.")
 h3("Limitations")
 bullet("Judges are LLMs and agree only moderately with each other and with the human labels (kappa 0.22 to 0.37 on the "
-       "random half). The human check has one labeller on 60 notes, so there is no human-human agreement figure. Results are "
+       "random half), below the pre-registered 0.60 gate, so H3 and H4 are provisional (D9). The human check has one labeller on 60 notes, so there is no human-human agreement figure. Results are "
        "given for each judge rule so readers can see how much they move.")
 bullet("The judges miss most altered details (Section 4), so the unsupported rates are lower bounds that cover "
        "sources off the note's main point, not factual slips in dates or figures.")
@@ -323,8 +332,8 @@ para("Extend the audit to notes that never reached Helpful status and to video a
 h2("6. Conclusion")
 para("Counting the notes AI writers delete removes about half of their apparent advantage in reaching Helpful status, and "
      "nearly all of that deletion comes from a few accounts that withdraw notes early. At the same time, the sources cited by "
-     "AI notes that do reach Helpful status hold up at least as well as human notes' sources, and raters' source tags barely "
-     "distinguish supported from unsupported notes. Comparisons of AI and human fact-checkers should count deletions and "
+     "AI notes that do reach Helpful status show no detectable gap against human notes' sources, and whether raters' source "
+     "tags track support remains open. Comparisons of AI and human fact-checkers should count deletions and "
      "check sources rather than rely on helpfulness ratings of surviving notes.")
 
 h2("Code and Data")
@@ -360,11 +369,13 @@ para("Personal data: all data is public. X publishes writer and rater ids only i
      "ratings. No one was contacted and nothing was posted to X.")
 
 h2("Appendix B. Pre-registration and deviations")
-para("PREREG.md was committed before any outcome was read. DEVIATIONS.md records seven changes: D1 a rule for the "
+para("PREREG.md was committed before any outcome was read. DEVIATIONS.md records nine changes: D1 a rule for the "
      "collaborative-note account; D2 judges run through command-line clients after the planned paid API had no credit; D3 a "
      "third judge; D4 the negative control (added, not replacing anything); D5 Judge B replaced after a usage limit, with its "
      "110 judgments kept as a check; D6 a higher token cap and streamed replies for the sponsor-API judges; D7 the reduced, "
-     "enriched human check. No hypothesis, outcome definition or primary analysis was changed.")
+     "enriched human check; D8 a harder altered-number control (added); D9 the judge-human kappa gate was triggered but H3 and "
+     "H4 stay judge-based, because the human-labelled set is too small to test them, and are marked provisional. No hypothesis "
+     "or outcome definition was changed; D9 is the one departure from the planned primary analysis.")
 
 h2("Appendix C. Per-writer reliability (ten largest AI writers)")
 top = sorted(writers, key=lambda r: -int(r["notes"]))[:10]
@@ -377,7 +388,7 @@ S.append(("table", (["Writer (hashed id)", "Notes; first month", "Deleted / ever
 
 h2("LLM Usage Statement")
 para("The authors designed the study, set the hypotheses, made every analysis decision and verified each reported number "
-     "against the files in results/. Claude Code was used as an AI assistant for implementation and writing support. Three "
+     "against the files in results/ and audit/. Claude Code was used as an AI assistant for implementation and writing support. Three "
      "LLMs also serve as judges inside the method, as described in Section 3. The labels in the human check (DEVIATIONS D7) are the authors' own; an AI tool was used only to tidy the wording of the labellers' working notes, which are not released.")
 
 # --- render onto the template ---

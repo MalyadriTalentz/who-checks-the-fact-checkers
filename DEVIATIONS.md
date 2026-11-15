@@ -102,3 +102,14 @@ Result of D7 (15 Nov, evening IST): the authors labelled all 106 rows (60 notes)
 labeller, so no human-human kappa. Judge-vs-human kappas, per-label DOES_NOT_SUPPORT counts and the
 label mix are in `results/part2.json` under `gold`. The per-label counts were added after seeing the
 kappas, so they are descriptive, not pre-registered.
+
+## D9 (15 Nov, evening IST): judge-human kappa gate triggered; H3 and H4 stay judge-based, marked provisional
+
+PREREG section 6: if judge-human kappa at note level is below 0.60, H3 and H4 are reported on the
+human-labelled set only and the judge results move to an appendix. Note-level kappa against the
+authors' labels was 0.56 (Judge A), 0.44 (B) and 0.30 (C), so the gate is triggered. The human set
+is one labeller on 60 notes, half chosen from Judge A's flags (D7); its random half holds 30 notes
+with one unsupported note, far too few to test H3 or H4. We report that human-only result
+(`results/part2.json`, `gold.human_only_H3_random_half`) but keep the judge-based H3 and H4 in the main
+text, labelled provisional. This is a departure from the planned primary analysis, decided after
+seeing the kappas.

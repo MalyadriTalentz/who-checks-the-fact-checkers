@@ -150,6 +150,18 @@ if gold_files:
                                            "human_dns_judge_supports": sum(jd[x] in ("SUPPORTS", "PARTIAL") for x in hd),
                                            "agree_exact": sum(jd[x] == gold[0][x] for x in k), "n": len(k)}
     res["gold"]["human_labels"] = dict(collections.Counter(gold[0].values()))
+    # PREREG s6 gate is judge-human kappa at NOTE level; and its fallback, H3 on the human-labelled set (random half only).
+    rnd = set(json.load(open("audit/gold_v2_design.json"))["random"])
+    hn = {}
+    for (nid, u), l in gold[0].items(): hn.setdefault(nid, []).append(l)
+    hn = {nid: note_label(ls) for nid, ls in hn.items()}
+    for name in ("A", "B", "C"):
+        for tag, ids in (("", list(hn)), ("_random_half", [i for i in hn if i in rnd])):
+            ids = [i for i in ids if i in notes]
+            res["gold"][f"judge{name}_vs_human1_kappa_note{tag}"] = kappa([notes[i][name] for i in ids], [hn[i] for i in ids])
+    res["gold"]["human_only_H3_random_half"] = {g: {"notes": sum(notes[i]["grp"] == g for i in hn if i in rnd and i in notes),
+        "unsupported": sum(notes[i]["grp"] == g and hn[i] == "unsupported" for i in hn if i in rnd and i in notes),
+        "supported": sum(notes[i]["grp"] == g and hn[i] == "supported" for i in hn if i in rnd and i in notes)} for g in ("ai", "human")}
 
 # Negative control (DEVIATIONS D4): share of mismatched note-page pairs a judge still calls support.
 res["negative_control"] = {}

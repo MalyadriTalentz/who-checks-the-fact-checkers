@@ -159,5 +159,5 @@ db.execute(f"""copy (select month, grp, count(*) notes, avg(deleted::int) delete
 db.execute(f"""copy (select substr(author, 1, 8) writer, grp, count(*) notes, min(month) first_month, max(month) last_month,
     round(avg(deleted::int), 4) deleted_rate, round(avg(eh::int), 4) ever_helpful_rate, sum(eh::int) ever_helpful,
     round(sum((eh and not_crh_now)::int) * 1.0 / nullif(sum(eh::int), 0), 4) lost_rate
-    from n where is_ai group by all order by notes desc) to '{OUT}/writers.csv' (header)""")
+    from n where is_ai group by all order by notes desc, writer) to '{OUT}/writers.csv' (header)""")
 print(json.dumps(res, indent=1))

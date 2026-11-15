@@ -41,8 +41,8 @@ a1.plot(months, share, color=AI); a1.set_ylabel("AI share of new notes (%)")
 for grp, col in (("ai", AI), ("human", HU)):
     a2.plot(months, [100 * get(m, grp, "deleted_rate") for m in months], color=col, label=grp)
 a2.set_ylabel("Deleted (%)"); a2.legend(["AI", "Human"], frameon=False, loc="upper left")
-if "2026-03" in months:
-    a2.annotate("deletion begins", xy=(months.index("2026-03"), 1.5), xytext=(months.index("2026-03") - 6, 2.5),
+if "2026-04" in months:
+    a2.annotate("deletion jumps", xy=(months.index("2026-04"), 15), xytext=(months.index("2026-04") + 0.8, 10),
                 fontsize=7.5, arrowprops=dict(arrowstyle="->", lw=0.7))
 for a in (a1, a2):
     a.set_xticks(months[::3], [m[2:] for m in months[::3]], rotation=45)
