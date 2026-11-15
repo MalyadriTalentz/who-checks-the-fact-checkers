@@ -2,7 +2,7 @@
 
 Usage: python report/build.py   (run ./run_all.sh first). Export to PDF with Pages or Word.
 """
-import csv, json, math, re
+import csv, json, math, pathlib, re
 import docx
 from docx.shared import Inches, Pt
 
@@ -293,10 +293,9 @@ para("PREREG.md was committed before any outcome was read. DEVIATIONS.md records
      "enriched human check. No hypothesis, outcome definition or primary analysis was changed.")
 
 h2("LLM Usage Statement")
-para("Claude Code (an AI coding assistant) was used to write the analysis code, run the pipeline and draft sections of this "
-     "report. The author chose the question, reviewed the code and every claim, and checked each number against the files in "
-     "results/. Three LLMs serve as judges in the method itself, as described in Section 3. The human labels were made by the "
-     "author.")
+para("The author designed the study, set the hypotheses, made every analysis decision and verified each reported number "
+     "against the files in results/. Claude Code was used as an AI assistant for implementation and writing support. Three "
+     "LLMs also serve as judges inside the method, as described in Section 3. Human labels were made by the author.")
 
 # --- render onto the template ---
 doc = docx.Document("cache/tmp/template.docx")
@@ -347,3 +346,88 @@ for kind, c in S:
 doc.save("report/report.docx")
 words = sum(len(c.split()) for k, c in S if k in ("p", "b"))
 print("report/report.docx written;", len(ABSTRACT.split()), "abstract words;", words, "body words")
+
+
+# --- LaTeX version (report/report.tex -> report/report.pdf with tectonic) ---
+import re as _re
+def esc(t):
+    out = []
+    for i, part in enumerate(_re.split(r"(https?://\S+?)(?=[)\s]|$|\.\s|\.$)", t)):
+        if i % 2:
+            out.append(r"\url{" + part + "}"); continue
+        for a, b in (("\\", r"\textbackslash{}"), ("&", r"\&"), ("%", r"\%"), ("$", r"\$"), ("#", r"\#"), ("_", r"\_"),
+                     ("{", r"\{"), ("}", r"\}"), ("~", r"\textasciitilde{}"), ("^", r"\^{}")):
+            part = part.replace(a, b)
+        part = _re.sub(r'"([^"]*)"', r"``\1''", part)
+        part = _re.sub(r"(?<![\w])-(?=\d)", "−", part)
+        out.append(part)
+    return "".join(out)
+L = [r"""\documentclass[10.5pt]{article}
+\usepackage[a4paper,margin=2.2cm]{geometry}
+\usepackage{fontspec}
+\setmainfont{texgyrepagella}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,ItalicFont=*-italic,BoldItalicFont=*-bolditalic]
+\setsansfont{texgyreheros}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,ItalicFont=*-italic,BoldItalicFont=*-bolditalic,Scale=0.92]
+\usepackage{graphicx,booktabs,tabularx,xcolor,titlesec,enumitem,caption}
+\usepackage[most]{tcolorbox}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\definecolor{accent}{HTML}{C0392B}\definecolor{ink}{HTML}{1F2A36}\definecolor{soft}{HTML}{F6F1EE}
+\titleformat{\section}{\sffamily\large\bfseries\color{ink}}{}{0pt}{}
+\titleformat{\subsection}{\sffamily\normalsize\bfseries\color{accent}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{12pt}{4pt}\titlespacing*{\subsection}{0pt}{8pt}{2pt}
+\captionsetup{font={small,it},labelformat=empty,skip=4pt}
+\setlist[itemize]{leftmargin=1.2em,itemsep=2pt,topsep=3pt}
+\setlength{\parskip}{4pt}\setlength{\parindent}{0pt}
+\linespread{1.06}\emergencystretch=3em
+\begin{document}
+\begin{center}
+{\sffamily\bfseries\LARGE\color{ink} """ + esc(TITLE) + r"""\par}
+\vspace{8pt}
+{\large """ + esc(AUTHOR.split("\n")[0]) + r"""\par}
+{\small\itshape """ + esc(AUTHOR.split("\n")[1]) + r""" \quad$\cdot$\quad AI x Epistemics Research Sprint, Apart Research, November 2026\par}
+\end{center}
+\vspace{4pt}
+\begin{tcolorbox}[colback=soft,colframe=soft,boxrule=0pt,arc=2pt,left=10pt,right=10pt,top=6pt,bottom=6pt]
+{\sffamily\bfseries\color{accent} Abstract}\par\small """ + esc(ABSTRACT) + r"""
+\end{tcolorbox}
+"""]
+def stat(big, small):
+    return (r"\begin{tcolorbox}[colback=white,colframe=accent!60,boxrule=0.5pt,arc=2pt,halign=center,top=4pt,bottom=4pt]"
+            r"{\sffamily\bfseries\Large\color{accent} " + esc(big) + r"}\par\vspace{1pt}{\footnotesize " + esc(small) + r"}\end{tcolorbox}")
+L.append(r"\begin{tcbraster}[raster columns=3,raster equal height,raster column skip=6pt]" + "".join([
+    stat(f"{pc(G['ai']['deleted'][0])} vs {pc(G['human']['deleted'][0])}", "of notes deleted by AI vs human writers"),
+    stat(f"{pt(H1['diff_surviving_only']['est'])} → {pt(H1['diff_all_notes']['est'])}", "AI advantage in reaching Helpful, before and after counting deletions (points)"),
+    stat(f"{pc(H3['primary_agree_set']['ai'])} vs {pc(H3['primary_agree_set']['human'])}", "of AI vs human Helpful notes with an unsupporting source"),
+]) + r"\end{tcbraster}")
+
+in_list = False
+for kind, c in S:
+    if kind != "b" and in_list:
+        L.append(r"\end{itemize}"); in_list = False
+    if kind == "h2":
+        L.append(r"\section*{" + esc(c) + "}")
+    elif kind == "h3":
+        L.append(r"\subsection*{" + esc(c) + "}")
+    elif kind == "p":
+        L.append((r"{\small " + esc(c) + "}" if _re.match(r"\[\d+\]", c) else esc(c)) + "\n")
+    elif kind == "b":
+        if not in_list:
+            L.append(r"\begin{itemize}"); in_list = True
+        L.append(r"\item " + esc(c))
+    elif kind == "fig":
+        L.append(r"\begin{figure}[htbp]\centering\includegraphics[width=\linewidth]{../" + c[0] + r"}\caption{" + esc(c[1]) + r"}\end{figure}")
+    elif kind == "table":
+        head, rows, cap = c
+        L.append(r"\begin{table}[htbp]\centering\small\renewcommand{\arraystretch}{1.25}\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}\toprule")
+        L.append(" & ".join(r"\textbf{\sffamily " + esc(h) + "}" for h in head) + r"\\\midrule")
+        L += [" & ".join(esc(v) for v in row) + r"\\" for row in rows]
+        L.append(r"\bottomrule\end{tabularx}\caption{" + esc(cap) + r"}\end{table}")
+    elif kind == "box":
+        head, _, rest = c.partition(". ")
+        L.append(r"\begin{tcolorbox}[colback=white,colframe=accent,boxrule=0.6pt,arc=2pt,left=8pt,right=8pt,top=5pt,bottom=5pt]\small{\sffamily\bfseries\color{accent} "
+                 + esc(head) + r".} " + esc(rest) + r"\end{tcolorbox}")
+if in_list:
+    L.append(r"\end{itemize}")
+L.append(r"\end{document}")
+pathlib.Path("report/report.tex").write_text("\n".join(L))
+print("report/report.tex written")

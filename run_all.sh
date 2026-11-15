@@ -5,3 +5,5 @@ set -e
 .venv/bin/python analysis/part1.py data/raw
 .venv/bin/python analysis/part2.py
 .venv/bin/python analysis/figures.py
+.venv/bin/python report/build.py
+(cd report && tectonic -X compile report.tex)  # needs tectonic (brew install tectonic)
