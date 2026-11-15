@@ -131,7 +131,7 @@ para("All AI-versus-human comparisons above score notes by rater outcomes. None 
 h2("3. Methods")
 para("The hypotheses, definitions, sample size, judge design and analysis were written down and committed before any "
      "outcome data was read (PREREG.md, first commit of the repository). Every later change is logged with its reason in "
-     "DEVIATIONS.md (seven entries, covering judge substitutions forced by usage limits and API errors, and the reduced "
+     "DEVIATIONS.md (eight entries, covering judge substitutions forced by usage limits and API errors, and the reduced "
      "human check described below).")
 h3("Data and definitions (Part 1)")
 para(f"We used X's public Community Notes release of 14 November 2026: the note, note-status-history and user-enrolment "
@@ -162,8 +162,9 @@ para("Two checks test the judges. In a negative control, 150 notes were each pai
      "a different post; a sound judge should almost never call such a page support. An earlier run of GPT-5.6 on 110 pairs, "
      "stopped by a usage limit, gives an extra agreement check. A harder control, added during the sprint (DEVIATIONS D8), "
      "takes pairs that all three judges called supported, changes one number in the note (years by three, other numbers "
-     "by half again) and asks whether the judges notice that the page no longer backs it. A human check was planned (see "
-     "Limitations).")
+     "by half again) and asks whether the judges notice that the page no longer backs it. Finally, the authors hand-labelled "
+     "106 links from 60 notes, half drawn at random and half from notes Judge A flagged, without seeing which was which "
+     "(DEVIATIONS D7).")
 h3("Rater blindness (Part 3)")
 para(f"For the same notes we took all {f0(90742)} public ratings and computed, per note, the share of raters who ticked "
      "\"good sources\" and the share who ticked \"sources missing or unreliable\". H4 asks whether these shares differ between "
@@ -248,6 +249,17 @@ para(f"The judges passed the negative control: none of the three called any of t
      f"{AG['note_AB_kappa']:.2f} per note). Most disagreements were PARTIAL against SUPPORTS rather than support against no "
      f"support. On the 110 GPT-5.6 pairs, kappa with Judges A, B and C was {GPT['kappa_vs_A']:.2f}, {GPT['kappa_vs_B']:.2f} and "
      f"{GPT['kappa_vs_C']:.2f}.")
+GD = p2["gold"]; gA, gB, gC = GD["judgeA_dns"], GD["judgeB_dns"], GD["judgeC_dns"]
+para(f"Against the authors' hand labels on {gA['n']} links from 60 notes (DEVIATIONS D7), kappa was "
+     f"{GD['judgeA_vs_human1_kappa_url']:.2f} for Judge A, {GD['judgeB_vs_human1_kappa_url']:.2f} for Judge B and "
+     f"{GD['judgeC_vs_human1_kappa_url']:.2f} for Judge C, and {GD['judgeA_vs_human1_kappa_url_random_half']:.2f}, "
+     f"{GD['judgeB_vs_human1_kappa_url_random_half']:.2f} and {GD['judgeC_vs_human1_kappa_url_random_half']:.2f} on the random "
+     f"half alone. The humans called {gA['human_dns']} links unsupported. Of the {gA['judge_dns']} Judge A called unsupported, "
+     f"{gA['both']} were also unsupported to the humans; the humans rated the other 15 PARTIAL (8) or uncheckable (7), never clear support. The judges lean "
+     f"lenient, not harsh: Judge C called {gC['human_dns_judge_supports']} of the {gC['human_dns']} human-unsupported links "
+     f"supported or partly supported, Judge B {gB['human_dns_judge_supports']} and Judge A {gA['human_dns_judge_supports']} "
+     "(Judge A's figure is flattered, since half the sheet was chosen from its flags). The H3 rates are therefore best read as "
+     "lower bounds, and the judges are weakest exactly where a fact-checker most needs them.")
 para(f"The harder control exposes the judges' limit. In {PC['clean_n']} pairs where one number in the note was changed and the "
      f"new number appears nowhere on the page, Judge A flagged {PC['clean_caught_A']}, Judge B {PC['clean_caught_B']} and "
      f"Judge C {PC['clean_caught_C']}; at least one judge flagged {PC['clean_caught_any']}. Their reasons show why: they check "
@@ -289,8 +301,8 @@ para("Not everything went as planned. H1 held but fell short of the 5-point effe
      "settled with 26 unsupported notes; the judges failed the harder altered-number control; the human check was cut from two labellers on 150 notes to one on 60; and two "
      "judges had to be swapped mid-sprint. All of these are recorded in DEVIATIONS.md as they happened.")
 h3("Limitations")
-bullet("Judges are LLMs and agree only moderately with each other. The planned human check (one labeller on 60 notes, "
-       "half of them chosen because Judge A flagged them; DEVIATIONS D7) is not reported in this version. Results are "
+bullet("Judges are LLMs and agree only moderately with each other and with the human labels (kappa 0.22 to 0.37 on the "
+       "random half). The human check has one labeller on 60 notes, so there is no human-human agreement figure. Results are "
        "given for each judge rule so readers can see how much they move.")
 bullet("The judges miss most altered details (Section 4), so the unsupported rates are lower bounds that cover "
        "sources off the note's main point, not factual slips in dates or figures.")
@@ -366,7 +378,7 @@ S.append(("table", (["Writer (hashed id)", "Notes; first month", "Deleted / ever
 h2("LLM Usage Statement")
 para("The authors designed the study, set the hypotheses, made every analysis decision and verified each reported number "
      "against the files in results/. Claude Code was used as an AI assistant for implementation and writing support. Three "
-     "LLMs also serve as judges inside the method, as described in Section 3. The human check described in DEVIATIONS D7 is labelled by the authors.")
+     "LLMs also serve as judges inside the method, as described in Section 3. The labels in the human check (DEVIATIONS D7) are the authors' own; an AI tool was used only to tidy the wording of the free-text comments that accompany them.")
 
 # --- render onto the template ---
 doc = docx.Document("cache/tmp/template.docx")

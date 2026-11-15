@@ -142,6 +142,14 @@ if gold_files:
         kr = [x for x in k if x[0] in rnd]  # random half only: unbiased by the flagged over-sample (DEVIATIONS D7)
         if kr:
             res["gold"][f"judge{name}_vs_human1_kappa_url_random_half"] = kappa([url_label(j, x[0], x[1]) for x in kr], [gold[0][x] for x in kr])
+        # Per-label view of DOES_NOT_SUPPORT: how often the judge's flag matches the human's, and how many human flags it finds.
+        jd = {x: url_label(j, x[0], x[1]) for x in k}
+        hd = [x for x in k if gold[0][x] == "DOES_NOT_SUPPORT"]; jdn = [x for x in k if jd[x] == "DOES_NOT_SUPPORT"]
+        res["gold"][f"judge{name}_dns"] = {"human_dns": len(hd), "judge_dns": len(jdn),
+                                           "both": sum(gold[0][x] == "DOES_NOT_SUPPORT" for x in jdn),
+                                           "human_dns_judge_supports": sum(jd[x] in ("SUPPORTS", "PARTIAL") for x in hd),
+                                           "agree_exact": sum(jd[x] == gold[0][x] for x in k), "n": len(k)}
+    res["gold"]["human_labels"] = dict(collections.Counter(gold[0].values()))
 
 # Negative control (DEVIATIONS D4): share of mismatched note-page pairs a judge still calls support.
 res["negative_control"] = {}

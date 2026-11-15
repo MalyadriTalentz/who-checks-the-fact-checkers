@@ -96,3 +96,9 @@ x1.5, rounded), and judge the altered note against the same page. The page now c
 so SUPPORTS or PARTIAL counts as a miss. Up to 100 pairs, chosen in hash order. Outputs go to
 `audit/control_perturbed/` with a manifest of each change. This is a robustness check on the judges
 and changes no hypothesis or primary analysis.
+
+Result of D7 (15 Nov, evening IST): the authors labelled all 106 rows (60 notes) in
+`audit/gold_labels_1.csv`; an AI tool was used only to tidy the wording of the comment column. One
+labeller, so no human-human kappa. Judge-vs-human kappas, per-label DOES_NOT_SUPPORT counts and the
+label mix are in `results/part2.json` under `gold`. The per-label counts were added after seeing the
+kappas, so they are descriptive, not pre-registered.
