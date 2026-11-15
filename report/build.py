@@ -44,9 +44,10 @@ verdict = [
 ]
 
 TITLE = "The Notes That Vanish: Self-Deletion Inflates AI Fact-Checkers' Track Record on X, While Their Sources Show No Detectable Gap"
-AUTHORS = ["Malyadri Chowdary Marneni\u00b9", "Poojitha G\u00b2", "Chandana R"]  # Chandana's affiliation not yet given
+AUTHORS = ["Malyadri Chowdary Marneni\u00b9", "Poojitha G\u00b2", "Chandana R\u00b3"]
 AFFILS = ["\u00b9Student researcher, Masters' Union University",
-          "\u00b2Sapthagiri NPS University; Research intern, Indian Institute of Management Bangalore"]
+          "\u00b2Sapthagiri NPS University; Research intern, Indian Institute of Management Bangalore",
+          "\u00b3BGS College"]
 AUTHOR = ", ".join(AUTHORS) + "\n" + "   ".join(AFFILS)
 ABSTRACT = (
     f"Roughly one in six Community Notes written by AI on X quietly disappears. AI writers now draft about half of all new "
