@@ -138,6 +138,10 @@ if gold_files:
     for name, j in (("A", A), ("B", B), ("C", C)):
         k = [x for x in gold[0] if x[1]]
         res["gold"][f"judge{name}_vs_human1_kappa_url"] = kappa([url_label(j, x[0], x[1]) for x in k], [gold[0][x] for x in k])
+        rnd = set(json.load(open("audit/gold_v2_design.json"))["random"]) if pathlib.Path("audit/gold_v2_design.json").exists() else set()
+        kr = [x for x in k if x[0] in rnd]  # random half only: unbiased by the flagged over-sample (DEVIATIONS D7)
+        if kr:
+            res["gold"][f"judge{name}_vs_human1_kappa_url_random_half"] = kappa([url_label(j, x[0], x[1]) for x in kr], [gold[0][x] for x in kr])
 
 # Negative control (DEVIATIONS D4): share of mismatched note-page pairs a judge still calls support.
 res["negative_control"] = {}

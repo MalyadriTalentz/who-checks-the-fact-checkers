@@ -66,3 +66,15 @@ cached, so no label was recorded for them. The cap is raised to 16,000 for the r
 Judges B and C. The prompt, model and temperature are unchanged; judgments already made are kept.
 Pairs that needed more reasoning are therefore judged under the higher cap, which is a known
 difference between the earlier and later calls.
+
+## D7 (15 Nov, ~12:30 IST): human check is one labeller on 60 notes, over-sampling judge-flagged notes
+
+The plan (PREREG section 8) was 150 notes labelled by two people. The project has one author, so
+there is one labeller and no human-human kappa. The time left allows about 60 notes. Judge A called
+only 45 of 779 links DOES_NOT_SUPPORT, so 60 random notes would contain only a handful of
+unsupported cases and the kappa would mean little. The sheet (`cache/gold_sheet_v2.csv`, built by
+`audit/make_gold.py`) therefore mixes 30 random notes with 30 notes Judge A flagged, in hash order,
+with no flag or author column; only readable links are included. The split is recorded in
+`audit/gold_v2_design.json`, which the labeller does not open before finishing. Kappa is reported
+on all 60 notes and on the random half alone; only the random half is unbiased by the selection.
+This was set before any human label existed.
