@@ -4,3 +4,4 @@
 set -e
 .venv/bin/python analysis/part1.py data/raw
 .venv/bin/python analysis/part2.py
+.venv/bin/python analysis/figures.py

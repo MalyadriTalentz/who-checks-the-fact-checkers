@@ -78,7 +78,7 @@ for g, n_all, n_del, eh_all, n_surv, eh_surv, lost, authors in db.execute("""
 def author_rows(g):
     return np.array(db.execute("""
         select count(*), sum(eh::int), sum((not deleted)::int), sum((eh and not deleted)::int),
-               sum((eh and not_crh_now)::int) from n where grp = ? group by author""", [g]).fetchall(), dtype=float)
+               sum((eh and not_crh_now)::int) from n where grp = ? group by author order by author""", [g]).fetchall(), dtype=float)
 
 A, H = author_rows("ai"), author_rows("human")
 rate = lambda x, k, n: x[:, k].sum() / x[:, n].sum()
@@ -93,7 +93,7 @@ res["H1"] = {
 P = np.array(db.execute("""
     select avg(case when grp='ai' then not_crh_now::int end), avg(case when grp='human' then not_crh_now::int end)
     from n where eh and not deleted and grp in ('ai','human') group by tweetId
-    having sum((grp='ai')::int) > 0 and sum((grp='human')::int) > 0""").fetchall(), dtype=float)
+    having sum((grp='ai')::int) > 0 and sum((grp='human')::int) > 0 order by tweetId""") .fetchall(), dtype=float)
 res["H2"] = {"within_post_posts": len(P)}
 if len(P):
     res["H2"]["within_post"] = boot(lambda p: (p[:, 0] - p[:, 1]).mean(), P)
@@ -114,6 +114,19 @@ res["H2"]["month_standardised"] = {"ai": ai_rate, "human_standardised": hum_std,
 res["hours_to_loss_median"] = dict(db.execute("""
     select grp, median(hours_first_to_last_change) from n
     where eh and not_crh_now and hours_first_to_last_change is not null group by grp""").fetchall())
+
+# Exploratory (not pre-registered): AI writers that delete >5% of their notes vs those that do not.
+# Deletion is almost entirely from a few accounts; X describes a "Deletion Model" in its own writer (arXiv 2609.40067).
+res["exploratory_ai_by_deletion"] = {}
+for name, cond in (("deleting_writers", ">"), ("non_deleting_writers", "<=")):
+    k = db.execute(f"""
+        with a as (select author from n where grp = 'ai' group by author having avg(deleted::int) {cond} 0.05)
+        select count(distinct author), count(*), sum(deleted::int), sum(eh::int), sum((not deleted)::int),
+               sum((eh and not deleted)::int), sum((eh and not_crh_now)::int)
+        from n where grp = 'ai' and author in (select author from a)""").fetchone()
+    res["exploratory_ai_by_deletion"][name] = {
+        "writers": k[0], "notes": k[1], "deleted": wilson(k[2], k[1]), "ever_helpful_all_notes": wilson(k[3], k[1]),
+        "ever_helpful_surviving_only": wilson(k[5], k[4]), "lost_helpful_among_ever_helpful": wilson(k[6], k[3])}
 
 json.dump(res, open(OUT / "part1.json", "w"), indent=1)
 db.execute(f"""copy (select month, grp, count(*) notes, avg(deleted::int) deleted_rate, avg(eh::int) ever_helpful_rate,

@@ -20,12 +20,19 @@ def ask(model, user):
             if model.startswith("adaption/"):  # sponsor API, temperature 0; reads ADAPTION_API_KEY from the environment
                 req = urllib.request.Request("https://api.prod.adaptionlabs.ai/api/v1/responses", json.dumps({
                     "model": model.split("/")[1], "instructions": PROMPT, "input": user, "temperature": 0,
-                    "max_output_tokens": 16000}).encode(), {"Authorization": "Bearer " + os.environ["ADAPTION_API_KEY"],
-                                                           "Content-Type": "application/json"})
-                with urllib.request.urlopen(req, timeout=300) as r:
-                    d = json.loads(r.read())
-                text = "".join(c.get("text", "") for o in d.get("output", []) if o.get("type") == "message"
-                               for c in (o.get("content") or []) if isinstance(c, dict))
+                    "max_output_tokens": 16000, "stream": True}).encode(), {"Authorization": "Bearer " + os.environ["ADAPTION_API_KEY"],
+                                                                            "Content-Type": "application/json"})
+                text, d = "", {}  # streamed so long replies are not cut off by the gateway timeout (DEVIATIONS D6)
+                with urllib.request.urlopen(req, timeout=900) as r:
+                    for line in r:
+                        line = line.decode().strip()
+                        if not line.startswith("data:") or line[5:].strip() == "[DONE]":
+                            continue
+                        e = json.loads(line[5:])
+                        if e.get("type") == "response.output_text.delta":
+                            text += e.get("delta", "")
+                        elif e.get("type") in ("response.completed", "response.incomplete", "response.failed"):
+                            d = e.get("response", {})
                 if not text:
                     raise RuntimeError(f"empty reply, status {d.get('status')}")
                 return {"choices": [{"message": {"content": text}}], "usage": d.get("usage")}

@@ -78,3 +78,7 @@ with no flag or author column; only readable links are included. The split is re
 `audit/gold_v2_design.json`, which the labeller does not open before finishing. Kappa is reported
 on all 60 notes and on the random half alone; only the random half is unbiased by the selection.
 This was set before any human label existed.
+
+Addendum to D6 (~12:30 IST): the last 43 Qwen pairs (mostly long pages) kept failing with HTTP 504
+gateway timeouts. Sponsor-API calls are now streamed, which only changes how the reply is delivered,
+not the prompt, model, temperature or token cap.
