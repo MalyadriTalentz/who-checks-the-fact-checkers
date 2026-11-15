@@ -17,24 +17,39 @@ pairs = H3["same_post_pairs"]; k_ai, k_hu = pairs["ai_only_unsupported"], pairs[
 sign_p = min(1, 2 * sum(math.comb(k_ai + k_hu, i) for i in range(min(k_ai, k_hu) + 1)) / 2 ** (k_ai + k_hu))
 ps = p2["page_status_by_group"]; ok_share = {g: ps[g]["ok"] / sum(ps[g].values()) for g in ps}
 writers = [r for r in csv.DictReader(open("results/writers.csv")) if r["grp"] == "ai"]
+def pval(b):  # two-sided, normal approximation from the bootstrap interval
+    est = b["est"] if "est" in b else b["diff"]; se = (b["hi"] - b["lo"]) / 3.92
+    return math.erfc(abs(est / se) / math.sqrt(2)) if se > 0 else 0.0
+raw = [pval(H1["survivorship_gap"]), pval(H2["within_post"]), pval(H3["primary_agree_set"]), pval(H4["helpfulGoodSources_share"])]
+order = sorted(range(4), key=lambda i: raw[i]); holm = [0.0] * 4; run = 0.0
+for rank, i in enumerate(order):
+    run = max(run, min(1.0, (4 - rank) * raw[i])); holm[i] = run
+fp = lambda x: "p < 0.001" if x < 0.001 else f"p = {x:.2f}"
+h4b = H4["helpfulGoodSources_share"]
+verdict = [
+    f"Supported ({fp(holm[0])}), but below the 5-point smallest effect of interest",
+    f"Small difference, AI lower; {fp(holm[1])} after correction (uncorrected {fp(raw[1])}); far inside the 5-point margin",
+    f"No detectable difference ({fp(holm[2])}); point estimate favours AI notes",
+    "Inconclusive: interval not inside ±5 points" if not (-0.05 < h4b["lo"] and h4b["hi"] < 0.05) else "Blind: interval inside ±5 points",
+]
 
-TITLE = "Who Checks the Fact-Checkers? Deletion Inflates AI Community Notes' Track Record, but Their Sources Hold Up"
+TITLE = "The Notes That Vanish: Self-Deletion Inflates AI Fact-Checkers' Track Record on X, but Their Sources Hold Up"
 AUTHOR = "Malyadri Chowdary Marneni\nStudent researcher, Masters' Union University"
 ABSTRACT = (
-    f"AI note writers now draft about half of new Community Notes on X, and published comparisons judge them by how "
-    f"often raters mark their notes Helpful. This audit measures two things those comparisons leave out, with a plan "
-    f"fixed in advance. First, using X's public data for every note written between September 2025 and October 2026 "
-    f"({f0(G['ai']['notes'])} AI and {f0(G['human']['notes'])} human notes), AI writers deleted {pc(G['ai']['deleted'][0])} "
-    f"of their notes against {pc(G['human']['deleted'][0])} for humans. Nearly all deletions come from {X['deleting_writers']['writers']} "
-    f"high-volume accounts, consistent with the automatic deletion of notes predicted to fail that X describes in its own writer. "
-    f"Counting deleted notes halves the AI advantage in reaching Helpful status, from {pt(H1['diff_surviving_only']['est'])} "
-    f"to {pt(H1['diff_all_notes']['est'])} points. Once Helpful, AI notes lose that status slightly less often than human notes "
-    f"on the same posts. Second, three LLM judges from different vendors checked whether the pages cited by 800 notes on "
-    f"400 shared posts support the note; on a mismatched-page control none of the judges called any of {NC['A']['n']} pages "
-    f"support. AI notes were not more often unsupported than human notes ({pc(H3['primary_agree_set']['ai'])} vs "
-    f"{pc(H3['primary_agree_set']['human'])}; the difference is not statistically clear) and cited a readable source far more "
-    f"often. Raters' source tags barely tracked verified support. Helpfulness statistics for AI writers should count deleted "
-    f"notes; their citations deserve less suspicion than their survival rates."
+    f"Roughly one in six Community Notes written by AI on X quietly disappears. AI writers now draft about half of all new "
+    f"notes, and every published comparison scores them by how often raters mark their surviving notes Helpful. This "
+    f"pre-registered audit measures what that score cannot see. Using X's public record of every note from September 2025 "
+    f"to October 2026 ({f0(G['ai']['notes'])} AI and {f0(G['human']['notes'])} human notes), AI writers deleted "
+    f"{pc(G['ai']['deleted'][0])} of their notes against {pc(G['human']['deleted'][0])} for humans. Nearly all of these "
+    f"deletions come from {X['deleting_writers']['writers']} high-volume accounts and begin abruptly in March 2026, matching "
+    f"the automatic deletion of likely failures that X describes in its own AI writer. Counting the deleted notes halves the "
+    f"AI advantage in reaching Helpful status, from {pt(H1['diff_surviving_only']['est'])} to {pt(H1['diff_all_notes']['est'])} "
+    f"points. The second question is whether the notes are true to their sources. Three LLM judges from different vendors "
+    f"checked the pages cited by 800 AI and human notes on the same 400 posts; none called any of {NC['A']['n']} deliberately "
+    f"mismatched pages support. Here AI notes did well: they cited a readable source far more often, and were unsupported no "
+    f"more often than human notes ({pc(H3['primary_agree_set']['ai'])} vs {pc(H3['primary_agree_set']['human'])}, difference "
+    f"not statistically clear). Raters' own source tags barely told supported from unsupported notes. AI fact-checkers' "
+    f"sources deserve more trust than their survival statistics: evaluations should count deleted notes."
 )
 assert 150 <= len(ABSTRACT.split()) <= 250, len(ABSTRACT.split())
 
@@ -43,28 +58,43 @@ h2 = lambda t: S.append(("h2", t)); h3 = lambda t: S.append(("h3", t)); para = l
 bullet = lambda t: S.append(("b", t)); fig = lambda path, cap: S.append(("fig", (path, cap)))
 
 h2("1. Introduction")
-para("Community Notes is X's crowd-sourced fact-checking system: anyone in the programme can propose a note on a post, "
-     "and a note is shown publicly only when raters who usually disagree both rate it Helpful. Since September 2025, AI "
-     "programs can write notes through an API on the same terms as people. They now produce about half of all new notes "
-     f"(Figure 2). Early evaluations conclude that AI notes do well: they reach Helpful status more often than notes by "
-     "ordinary contributors [1, 2, 3]. Meta, TikTok and YouTube run or have trialled similar systems, so the question of "
-     "whether AI writers can be trusted at scale matters beyond one platform.")
-para("Those evaluations rest on one signal, rater helpfulness, measured on the notes that are still there. Two things "
-     "can make that signal misleading. A writer that deletes its likely failures early will look better on surviving notes "
-     "than it is; X's own paper on its AI writer describes a component that does exactly this [4]. And a note can be rated "
-     "Helpful while the source it cites does not say what the note claims. Raters are not required to open sources, so persuasive but "
-     "unsupported notes are a failure mode that helpfulness ratings cannot see. This is the gap the project addresses: an "
-     "independent check of AI fact-checkers that does not rely on the platform's own scoring.")
-para("Contributions:")
-bullet(f"A survivorship correction for AI note writers on the full public record ({f0(G['ai']['notes'] + G['human']['notes'])} "
-       f"notes). AI writers delete notes {G['ai']['deleted'][0] / G['human']['deleted'][0]:.1f} times as often as humans, almost "
-       f"entirely through {X['deleting_writers']['writers']} accounts, and counting those deletions halves their advantage in "
-       "reaching Helpful status.")
-bullet("A pre-registered citation audit of 800 AI and human notes on the same 400 posts, using three LLM judges from "
-       "different vendors, a deterministic quote check and a mismatched-page negative control. AI notes cite readable sources "
-       "more often and are not more often unsupported.")
-bullet("A test of whether raters' \"good sources\" and \"sources missing or unreliable\" tags track verified support "
-       "(they barely do), plus a per-writer reliability table and a script that rebuilds it from any day's public data.")
+para("If a student could erase every test they were about to fail, their grade point average would look excellent. "
+     "That is, in effect, the position of some AI fact-checkers on X today.")
+para("Community Notes is X's crowd-sourced fact-checking system: contributors propose notes on posts, and a note is shown "
+     "to everyone only when raters who usually disagree both rate it Helpful. Since September 2025, AI programs can write "
+     "notes through an API on the same terms as people, and they now draft about half of all new notes (Figure 2). Meta, "
+     "TikTok and YouTube have adopted or trialled similar systems, so whether AI fact-checkers can be trusted at scale is "
+     "becoming a question about the information diet of billions of people.")
+para("So far the answer has come from one number: how often raters mark AI notes Helpful. By that measure AI writers look "
+     "strong, beating ordinary contributors [1, 2, 3]. But the number has two blind spots. It is computed on the notes that "
+     "survive, and X's own paper on its AI writer describes a model that deletes notes predicted to fail after as few as "
+     "three ratings [4]. And it measures whether a note persuades raters, not whether the sources it cites say what it "
+     "claims. Raters are not required to open those sources. A fact-checker that sounds right but cites pages that do not "
+     "back it up would pass this test, which is exactly the failure an epistemic system most needs to catch.")
+para("This project audits AI fact-checkers on both blind spots, independently of the platform's own scoring, with every "
+     "hypothesis fixed in advance. Its contributions:")
+bullet(f"A survivorship correction on the full public record ({f0(G['ai']['notes'] + G['human']['notes'])} notes). AI "
+       f"writers delete notes {G['ai']['deleted'][0] / G['human']['deleted'][0]:.1f} times as often as humans, almost "
+       f"entirely through {X['deleting_writers']['writers']} accounts, and counting those deletions halves their advantage "
+       "in reaching Helpful status.")
+bullet("A source audit of 800 AI and human notes on the same 400 posts, using three LLM judges from different vendors, a "
+       "deterministic quote check and a mismatched-page control. AI notes cite readable sources more often and are not "
+       "more often unsupported.")
+bullet("Evidence that raters' source tags barely track verified support, plus a per-writer reliability table and a "
+       "one-command script that rebuilds every number from any day's public data.")
+S.append(("table", (["Pre-registered question", "Result (AI minus human)", "Verdict"], [
+    ["H1. Does counting deleted notes shrink the AI advantage in reaching Helpful?",
+     f"Gap {pt(H1['survivorship_gap']['est'])} points [{pt(H1['survivorship_gap']['lo'])}, {pt(H1['survivorship_gap']['hi'])}]: "
+     f"advantage falls from {pt(H1['diff_surviving_only']['est'])} to {pt(H1['diff_all_notes']['est'])}", verdict[0]],
+    ["H2. Do AI and human notes differ in how often they lose Helpful status?",
+     f"{pt(H2['within_post']['est'])} points [{pt(H2['within_post']['lo'])}, {pt(H2['within_post']['hi'])}], same posts", verdict[1]],
+    ["H3. Do AI and human notes differ in how often a cited source fails to support them?",
+     f"{pt(H3['primary_agree_set']['diff'])} points [{pt(H3['primary_agree_set']['lo'])}, {pt(H3['primary_agree_set']['hi'])}]", verdict[2]],
+    ["H4. Are raters' \"good sources\" tags blind to whether sources support the note?",
+     f"{pt(H4['helpfulGoodSources_share']['diff'])} points [{pt(H4['helpfulGoodSources_share']['lo'])}, "
+     f"{pt(H4['helpfulGoodSources_share']['hi'])}], supported minus unsupported", verdict[3]],
+], "Table 1. The four pre-registered hypotheses at a glance. Brackets: 95% bootstrap intervals. p-values are "
+   "normal approximations from the bootstrap standard error, Holm-corrected across the four tests as planned.")))
 
 h2("2. Related Work")
 para("Gong and Wu [1] characterise 20 AI writers and find their notes are rated helpful less often than expert human notes "
@@ -128,8 +158,8 @@ fig("results/fig1_survivorship.png",
 para(f"AI writers deleted {pc(G['ai']['deleted'][0])} of their notes; human writers deleted {pc(G['human']['deleted'][0])} "
      f"(Figure 1). On surviving notes, AI notes reached Helpful status more often than human notes, {ci(H1['diff_surviving_only'])}. "
      f"Counting deleted notes, the difference is {ci(H1['diff_all_notes'])}. H1 is supported: the survivorship gap is "
-     f"{ci(H1['survivorship_gap'])}, about half of the headline advantage, although it falls short of the 5-point smallest "
-     "effect of interest.")
+     f"{ci(H1['survivorship_gap'])} ({fp(holm[0])}, Holm-corrected), about half of the headline advantage, although it falls "
+     "short of the 5-point smallest effect of interest fixed in advance.")
 para(f"The deletions are not spread across AI writers. {X['deleting_writers']['writers']} accounts delete more than 5% of their "
      f"notes; together they wrote {pc(X['deleting_writers']['notes'] / G['ai']['notes'], 0)} of AI notes and deleted "
      f"{pc(X['deleting_writers']['deleted'][0])} of them, while the other {X['non_deleting_writers']['writers']} AI writers deleted "
@@ -145,8 +175,9 @@ fig("results/fig2_monthly.png",
     "author. AI deletion starts abruptly in March 2026.")
 para(f"Once Helpful, AI notes keep that status at least as well as human notes. Within the 5,487 posts with both kinds of "
      f"ever-Helpful note, {pc(H2['within_post_rates']['ai'])} of AI notes and {pc(H2['within_post_rates']['human'])} of human "
-     f"notes later lost it, a difference of {ci(H2['within_post'])}: statistically clear but well inside the 5-point margin. "
-     "H2, which predicted more reversals for AI notes, is not supported.")
+     f"notes later lost it, a difference of {ci(H2['within_post'])}. The "
+     f"difference is small and, after the planned Holm correction, not statistically significant ({fp(holm[1])}); either "
+     "way it is far inside the 5-point margin, so AI notes are no less stable once Helpful.")
 h3("Part 2: AI notes' sources hold up at least as well")
 para(f"AI notes cited a readable source far more often: {pc(ok_share['ai'], 0)} of AI-cited links could be read and judged "
      f"against {pc(ok_share['human'], 0)} of human-cited links, and {pc(p2['secondary']['no_checkable_source_judgeA']['human'])} "
@@ -161,33 +192,43 @@ para(f"Among notes with a readable source, AI notes were not more often unsuppor
      f"of human notes were unsupported ({H3['primary_agree_set']['n_ai']} and {H3['primary_agree_set']['n_human']} notes), a "
      f"difference of {ci(H3['primary_agree_set'])}. The bounds and the majority of three judges point the same way, and in "
      f"{pairs['n']} same-post pairs where both notes were judged, only the AI note was unsupported in {k_ai} pairs and only the "
-     f"human note in {k_hu} (two-sided sign test p = {sign_p:.2f}). H3, which predicted more unsupported AI notes, is not "
-     "supported; if anything the data lean the other way.")
+     f"human note in {k_hu} (two-sided sign test p = {sign_p:.2f}). H3 finds no "
+     f"detectable difference ({fp(holm[2])}, Holm-corrected); if anything, the data lean towards AI notes being better sourced.")
 para(f"The judges passed the negative control: none of the three called any of the {NC['A']['n']} mismatched pages support "
      f"(Judge A {NC['A']['false_support']}, Judge B {NC['B']['false_support']}, Judge C {NC['C']['false_support']}). Agreement "
      f"between Judges A and B on real pairs was moderate (Cohen's kappa {AG['url_AB_kappa']:.2f} per link, "
      f"{AG['note_AB_kappa']:.2f} per note). Most disagreements were PARTIAL against SUPPORTS rather than support against no "
      f"support. On the 110 GPT-5.6 pairs, kappa with Judges A, B and C was {GPT['kappa_vs_A']:.2f}, {GPT['kappa_vs_B']:.2f} and "
      f"{GPT['kappa_vs_C']:.2f}.")
+S.append(("box", "What an unsupported Helpful note looks like. An AI note said an image showed the 2003 breakup of "
+    "Space Shuttle Columbia, not Artemis 2, and cited a NASA Ames page; the page is a general overview of the division "
+    "that never mentions Columbia. A human note called viral \"hero dog\" rescue clips AI-generated and cited a 2021 "
+    "National Geographic article, which is about staged rescues using real animals, not AI. Both notes reached Helpful "
+    "status; in both, the claim may well be true, but the cited source does not show it. Both judges agreed on each case."))
 h3("Part 3: raters' source tags barely track verified support")
 g, b = H4["helpfulGoodSources_share"], H4["notHelpfulSourcesMissingOrUnreliable_share"]
 para(f"Raters ticked \"good sources\" on {pc(g['supported'])} of ratings for supported notes and {pc(g['unsupported'])} for "
      f"unsupported ones ({ci(g)}), and \"sources missing or unreliable\" on {pc(b['supported'])} and {pc(b['unsupported'])} "
-     f"({ci(b)}). The second tag, the one meant to flag bad sourcing, did not differ at all. With only {g['n_unsupported']} "
-     "unsupported notes, the first interval is too wide to call the tags equivalent, so H4 is inconclusive. All these notes had "
+     f"({ci(b)}). The second tag, the one meant to flag bad sourcing (a secondary measure), did not differ at all. With only "
+     f"{g['n_unsupported']} unsupported notes, the first interval is too wide to show the tags are blind, so H4 is "
+     "inconclusive rather than confirmed. All these notes had "
      "reached Helpful status, so the comparison is among notes raters already liked.")
 
 h2("5. Discussion and Limitations")
-para("The two parts give different verdicts on AI fact-checkers, and both matter for how such systems are evaluated. The "
-     "citation audit is reassuring: on posts where both an AI and a human note reached Helpful status, AI notes more often cite "
-     "something a reader can check, and what they cite supports them at least as often. The status data is a warning about "
-     "measurement rather than about the notes. When a writer can delete its notes as soon as early ratings look poor, its "
-     "surviving notes are a selected sample, and helpfulness rates computed on them overstate the writer's hit rate. Deletion "
-     "itself is a sensible design: it saves raters' attention, which X's paper [4] gives as the reason. The problem is "
-     "comparing writers on surviving notes when only some writers delete. Evaluations of AI writers, including platform "
-     "dashboards and outside studies, should count deleted notes, and the platform could publish deletion rates alongside "
-     "hit rates. More broadly, an AI system that can withdraw its own failures can look more reliable than it is, a general "
-     "pattern for anyone auditing AI agents through outcome logs.")
+para("Three lessons follow, and the first matters well beyond Community Notes.")
+para("An AI system that can withdraw its own failures will look more reliable than it is. The deleting accounts look like "
+     "the best AI writers on surviving notes and among the worst once deletions are counted. Deletion is a reasonable design "
+     "choice in itself; X's paper [4] justifies it as saving raters' attention. The problem is comparing writers on surviving "
+     "notes when only some of them delete. The same trap awaits anyone who audits AI agents from logs the agent can edit. "
+     "Platforms should publish deletion rates next to hit rates, and evaluations of AI writers should count every note "
+     "submitted, as X's own quota system already does.")
+para("AI fact-checkers' sourcing is not the weak point. On posts where both an AI and a human note reached Helpful status, "
+     "AI notes more often cite something a reader can check, and what they cite supports them at least as often. Worries "
+     "that AI notes win ratings with confident but unsupported claims are not borne out in this sample.")
+para("Raters cannot be the only check on sources. Their source tags barely separate supported from unsupported notes, "
+     "and the tag meant to flag bad sources did not move at all. An automated source check like the one used here, with "
+     "its quote verification and negative control, is cheap enough to run on every note before it is shown, for AI and "
+     "human writers alike.")
 h3("Limitations")
 bullet("Judges are LLMs. They agree only moderately with each other, and the human check is small: one labeller (the author) "
        "on 60 notes, half of them chosen because Judge A flagged them, instead of the planned two labellers on 150 notes "
@@ -264,6 +305,13 @@ title_table = doc.tables[0]
 for el in list(body):  # keep only the title/abstract table and the section properties
     if el is not title_table._tbl and not el.tag.endswith("sectPr"):
         body.remove(el)
+def grid(t):  # the template has no bordered table style, so set thin borders directly
+    from docx.oxml import OxmlElement
+    from docx.oxml.ns import qn
+    b = OxmlElement("w:tblBorders")
+    for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        e = OxmlElement(f"w:{edge}"); e.set(qn("w:val"), "single"); e.set(qn("w:sz"), "4"); e.set(qn("w:color"), "999999"); b.append(e)
+    t._tbl.tblPr.append(b)
 def fill(cell, heading, text, size):
     cell.paragraphs[0].text = ""
     for p in cell.paragraphs[1:]:
@@ -278,6 +326,21 @@ for kind, c in S:
     elif kind == "h3": doc.add_paragraph(c, style="Heading 3")
     elif kind == "p": doc.add_paragraph(c, style="normal")
     elif kind == "b": doc.add_paragraph("• " + c, style="normal").paragraph_format.left_indent = Inches(0.25)
+    elif kind == "table":
+        head, rows, cap = c
+        t = doc.add_table(rows=1 + len(rows), cols=len(head)); grid(t)
+        for j, h in enumerate(head):
+            cell = t.rows[0].cells[j]; cell.text = ""; r = cell.paragraphs[0].add_run(h); r.bold = True; r.font.size = Pt(8.5)
+        for i, row in enumerate(rows):
+            for j, v in enumerate(row):
+                cell = t.rows[i + 1].cells[j]; cell.text = ""; cell.paragraphs[0].add_run(v).font.size = Pt(8.5)
+        q = doc.add_paragraph(style="normal"); r = q.add_run(cap); r.italic = True; r.font.size = Pt(9)
+    elif kind == "box":
+        t = doc.add_table(rows=1, cols=1); grid(t)
+        cell = t.rows[0].cells[0]; cell.text = ""; head, _, rest = c.partition(". ")
+        r = cell.paragraphs[0].add_run(head + ". "); r.bold = True; r.font.size = Pt(9)
+        cell.paragraphs[0].add_run(rest).font.size = Pt(9)
+        doc.add_paragraph(style="normal")
     elif kind == "fig":
         doc.add_picture(c[0], width=Inches(6.2))
         cap = doc.add_paragraph(style="normal"); r = cap.add_run(c[1]); r.italic = True; r.font.size = Pt(9)
