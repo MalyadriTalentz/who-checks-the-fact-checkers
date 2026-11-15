@@ -17,7 +17,7 @@
 \linespread{1.06}\emergencystretch=3em
 \begin{document}
 \begin{center}
-{\sffamily\bfseries\LARGE\color{ink} The Notes That Vanish: Self-Deletion Inflates AI Fact-Checkers' Track Record on X, While Their Sources Are No Worse Than Humans'\par}
+{\sffamily\bfseries\LARGE\color{ink} The Notes That Vanish: Self-Deletion Inflates AI Fact-Checkers' Track Record on X, While Their Sources Show No Detectable Gap\par}
 \vspace{8pt}
 {\large Malyadri Chowdary Marneni¹, Poojitha G², Chandana R\par}
 {\small\itshape ¹Student researcher, Masters' Union University\\²Sapthagiri NPS University; Research intern, Indian Institute of Management Bangalore\par}
@@ -47,7 +47,7 @@ This project audits AI fact-checkers on both blind spots, independently of the p
 \end{itemize}
 \begin{table}[htbp]\centering\small\renewcommand{\arraystretch}{1.25}\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}\toprule
 \textbf{\sffamily Pre-registered question} & \textbf{\sffamily Result (AI minus human)} & \textbf{\sffamily Verdict}\\\midrule
-H1. Does counting deleted notes shrink the AI advantage in reaching Helpful? & Shrinkage +2.2 points [+1.6, +2.4]: advantage falls from +4.3 to +2.2 & Supported (p < 0.001), but below the 5-point smallest effect of interest\\
+H1. Does counting deleted notes shrink the AI advantage in reaching Helpful? & Shrinkage +2.2 points [+1.6, +2.4]: advantage falls from +4.3 to +2.2 & Supported (p < 0.001), but below the 5-point margin, and driven by one group of accounts\\
 H2. Do AI and human notes differ in how often they lose Helpful status? & −1.3 points [−2.5, −0.1], same posts & Small difference, AI lower; p = 0.07 after correction (uncorrected p = 0.02); far inside the 5-point margin\\
 H3. Do AI and human notes differ in how often a cited source fails to support them? & −4.6 points [−9.8, +0.6] & No detectable difference (p = 0.17); point estimate favours AI notes\\
 H4. Are raters' ``good sources'' tags blind to whether sources support the note? & +3.8 points [−1.4, +8.9], supported minus unsupported & Inconclusive: interval not inside ±5 points\\
@@ -81,6 +81,10 @@ For the same notes we took all 90,742 public ratings and computed, per note, the
 AI writers deleted 17.3\% of their notes; human writers deleted 6.8\% (Figure 1). On surviving notes, AI notes reached Helpful status more often than human notes, +4.3 points [95\% CI +3.6, +5.1]. Counting deleted notes, the advantage is +2.2 points [95\% CI +1.6, +3.1]. H1 is supported: the shrinkage is +2.2 points [95\% CI +1.6, +2.4] (p < 0.001, Holm-corrected), about half of the headline advantage, although it falls short of the 5-point smallest effect of interest fixed in advance.
 
 Why the advantage shrinks matters more than the fact that it does. Only 0.07\% of the notes AI writers deleted had ever been rated Helpful, against 5.1\% of the notes humans deleted. AI notes are withdrawn before raters reach a verdict, so their outcome is never observed. The two published-style comparisons therefore bracket the truth. Counting deleted notes as failures, as X's own quota rules do [4], gives the lower bound; counting only surviving notes assumes deleted notes would have done as well as the rest, which a deletion model aimed at likely failures makes implausible. If deleted AI notes would have reached Helpful at a quarter of the surviving rate, the advantage would be +2.8 points; at half, +3.4. The headline +4.3 requires deleted notes to be at least as good as surviving ones.
+
+Of the two, counting deleted notes is the like-for-like comparison. A human note that fails stays in the record as not Helpful and counts against its writer; an AI note withdrawn before its verdict would otherwise vanish from the denominator. Counting it treats both kinds of writer the same way, which is also how X's quota system scores AI writers [4].
+
+The effect belongs to a design, not to AI writers in general. Without the 7 deleting accounts, the shrinkage disappears (−0.3 points [95\% CI −0.4, −0.3]) and the remaining AI writers are ahead of humans by +4.1 points [95\% CI +1.3, +7.6] even with deleted notes counted. The deleting accounts look alike (similar volumes, start dates and deletion rates) and may be one operator; treated as a single cluster, the shrinkage interval becomes +2.2 points [95\% CI −0.4, +2.5] and no longer excludes zero, because the population then holds effectively one deleter. Restricting to notes created by August 2026, which have had at least ten weeks for deletion, leaves the shrinkage at +2.1 points [95\% CI +1.5, +2.4]. These checks were not pre-registered.
 
 The deletions are not spread across AI writers. 7 accounts delete more than 5\% of their notes; together they wrote 88\% of AI notes and deleted 19.6\% of them, while the other 32 AI writers deleted 0.2\%. AI deletion was near zero until March 2026 and then jumped to 15 to 22\% a month (Figure 2), which fits a deletion policy being switched on rather than a gradual change in writing. This pattern matches the Deletion Model in X's Community Writer [4], although hashed ids mean the accounts cannot be named. On surviving notes the deleting accounts look slightly better than the other AI writers (14.8\% vs 14.1\% ever Helpful); on all notes they look worse (11.9\% vs 14.1\%). This split was not pre-registered.
 
@@ -176,6 +180,6 @@ C08CB980 & 3,479; 2025-10 & 0.0\% / 13.4\% / 11.6\%\\
 9A4E061C & 2,966; 2025-10 & 0.0\% / 12.1\% / 13.9\%\\
 \bottomrule\end{tabularx}\caption{Table 2. Ever Helpful is over all notes including deleted ones. Full table for all AI writers: results/writers.csv, rebuilt from any day's public data by analysis/part1.py.}\end{table}
 \section*{LLM Usage Statement}
-The authors designed the study, set the hypotheses, made every analysis decision and verified each reported number against the files in results/. Claude Code was used as an AI assistant for implementation and writing support. Three LLMs also serve as judges inside the method, as described in Section 3. Human labels were made by the authors.
+The authors designed the study, set the hypotheses, made every analysis decision and verified each reported number against the files in results/. Claude Code was used as an AI assistant for implementation and writing support. Three LLMs also serve as judges inside the method, as described in Section 3. The human check described in DEVIATIONS D7 is labelled by the authors.
 
 \end{document}

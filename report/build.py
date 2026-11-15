@@ -8,6 +8,7 @@ from docx.shared import Inches, Pt
 
 p1, p2 = json.load(open("results/part1.json")), json.load(open("results/part2.json"))
 G, H1, H2, X = p1["groups"], p1["H1"], p1["H2"], p1["exploratory_ai_by_deletion"]
+RB = p1["robustness_H1"]
 H3, H4, AG, NC, GPT = p2["H3"], p2["H4"], p2["agreement"], p2["negative_control"], p2["gpt_subset"]
 PC = p2["perturbed_control"]
 pc = lambda v, d=1: f"{100 * v:.{d}f}%"
@@ -36,13 +37,13 @@ cost_b, cost_c = mean_cost("adaption__qwen3.5-397b"), mean_cost("adaption__glm-5
 fp = lambda x: "p < 0.001" if x < 0.001 else f"p = {x:.2f}"
 h4b = H4["helpfulGoodSources_share"]
 verdict = [
-    f"Supported ({fp(holm[0])}), but below the 5-point smallest effect of interest",
+    f"Supported ({fp(holm[0])}), but below the 5-point margin, and driven by one group of accounts",
     f"Small difference, AI lower; {fp(holm[1])} after correction (uncorrected {fp(raw[1])}); far inside the 5-point margin",
     f"No detectable difference ({fp(holm[2])}); point estimate favours AI notes",
     "Inconclusive: interval not inside ±5 points" if not (-0.05 < h4b["lo"] and h4b["hi"] < 0.05) else "Blind: interval inside ±5 points",
 ]
 
-TITLE = "The Notes That Vanish: Self-Deletion Inflates AI Fact-Checkers' Track Record on X, While Their Sources Are No Worse Than Humans'"
+TITLE = "The Notes That Vanish: Self-Deletion Inflates AI Fact-Checkers' Track Record on X, While Their Sources Show No Detectable Gap"
 AUTHORS = ["Malyadri Chowdary Marneni\u00b9", "Poojitha G\u00b2", "Chandana R"]  # Chandana's affiliation not yet given
 AFFILS = ["\u00b9Student researcher, Masters' Union University",
           "\u00b2Sapthagiri NPS University; Research intern, Indian Institute of Management Bangalore"]
@@ -188,6 +189,18 @@ para(f"Why the advantage shrinks matters more than the fact that it does. Only {
      f"failures makes implausible. If deleted AI notes would have reached Helpful at a quarter of the surviving rate, the "
      f"advantage would be {pt(adv_r(0.25))} points; at half, {pt(adv_r(0.5))}. The headline +{100 * H1['diff_surviving_only']['est']:.1f} "
      "requires deleted notes to be at least as good as surviving ones.")
+para("Of the two, counting deleted notes is the like-for-like comparison. A human note that fails stays in the record as "
+     "not Helpful and counts against its writer; an AI note withdrawn before its verdict would otherwise vanish from the "
+     "denominator. Counting it treats both kinds of writer the same way, which is also how X's quota system scores AI "
+     "writers [4].")
+para(f"The effect belongs to a design, not to AI writers in general. Without the {X['deleting_writers']['writers']} deleting "
+     f"accounts, the shrinkage disappears ({ci(RB['without_deleting_accounts']['survivorship_gap'])}) and the remaining AI "
+     f"writers are ahead of humans by {ci(RB['without_deleting_accounts']['diff_all_notes'])} even with deleted notes counted. "
+     "The deleting accounts look alike (similar volumes, start dates and deletion rates) and may be one operator; treated as "
+     f"a single cluster, the shrinkage interval becomes {ci(RB['deleting_accounts_one_cluster']['survivorship_gap'])} and no "
+     "longer excludes zero, because the population then holds effectively one deleter. Restricting to notes created by "
+     f"August 2026, which have had at least ten weeks for deletion, leaves the shrinkage at "
+     f"{ci(RB['notes_to_2026_08']['survivorship_gap'])}. These checks were not pre-registered.")
 para(f"The deletions are not spread across AI writers. {X['deleting_writers']['writers']} accounts delete more than 5% of their "
      f"notes; together they wrote {pc(X['deleting_writers']['notes'] / G['ai']['notes'], 0)} of AI notes and deleted "
      f"{pc(X['deleting_writers']['deleted'][0])} of them, while the other {X['non_deleting_writers']['writers']} AI writers deleted "
@@ -353,7 +366,7 @@ S.append(("table", (["Writer (hashed id)", "Notes; first month", "Deleted / ever
 h2("LLM Usage Statement")
 para("The authors designed the study, set the hypotheses, made every analysis decision and verified each reported number "
      "against the files in results/. Claude Code was used as an AI assistant for implementation and writing support. Three "
-     "LLMs also serve as judges inside the method, as described in Section 3. Human labels were made by the authors.")
+     "LLMs also serve as judges inside the method, as described in Section 3. The human check described in DEVIATIONS D7 is labelled by the authors.")
 
 # --- render onto the template ---
 doc = docx.Document("cache/tmp/template.docx")

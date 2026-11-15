@@ -128,6 +128,29 @@ for name, cond in (("deleting_writers", ">"), ("non_deleting_writers", "<=")):
         "writers": k[0], "notes": k[1], "deleted": wilson(k[2], k[1]), "ever_helpful_all_notes": wilson(k[3], k[1]),
         "ever_helpful_surviving_only": wilson(k[5], k[4]), "lost_helpful_among_ever_helpful": wilson(k[6], k[3])}
 
+# Robustness (not pre-registered): H1 with the deleting accounts merged into one cluster (they may share one operator),
+# H1 without them, and H1 on notes with at least ~10 weeks of follow-up before the snapshot.
+db.execute("create temp table dele as select author from n where grp = 'ai' group by author having avg(deleted::int) > 0.05")
+def rows_where(g, extra="", merge=False):
+    key = "case when author in (select author from dele) then 'DELETERS' else author end" if merge else "author"
+    return np.array(db.execute(f"""
+        select count(*), sum(eh::int), sum((not deleted)::int), sum((eh and not deleted)::int), sum((eh and not_crh_now)::int)
+        from n where grp = ? {extra} group by {key} order by {key}""", [g]).fetchall(), dtype=float)
+gap = lambda a, h: (rate(a, 3, 2) - rate(h, 3, 2)) - (rate(a, 1, 0) - rate(h, 1, 0))
+adv_all = lambda a, h: rate(a, 1, 0) - rate(h, 1, 0)
+excl = "and author not in (select author from dele)"
+A_ex = np.array(db.execute(f"""select count(*), sum(eh::int), sum((not deleted)::int), sum((eh and not deleted)::int),
+    sum((eh and not_crh_now)::int) from n where grp = 'ai' {excl} group by author order by author""").fetchall(), dtype=float)
+old_q = "and month <= '2026-08'"
+res["robustness_H1"] = {
+    "deleting_accounts_one_cluster": {"survivorship_gap": boot(gap, rows_where("ai", merge=True), H), "ai_clusters": len(rows_where("ai", merge=True))},
+    "without_deleting_accounts": {"survivorship_gap": boot(gap, A_ex, H), "diff_all_notes": boot(adv_all, A_ex, H)},
+    "notes_to_2026_08": {"survivorship_gap": boot(gap, rows_where("ai", old_q), rows_where("human", old_q)),
+                         "diff_all_notes": boot(adv_all, rows_where("ai", old_q), rows_where("human", old_q)),
+                         "deleted_ai": float(db.execute(f"select avg(deleted::int) from n where grp='ai' {old_q}").fetchone()[0]),
+                         "deleted_human": float(db.execute(f"select avg(deleted::int) from n where grp='human' {old_q}").fetchone()[0])},
+}
+
 json.dump(res, open(OUT / "part1.json", "w"), indent=1)
 db.execute(f"""copy (select month, grp, count(*) notes, avg(deleted::int) deleted_rate, avg(eh::int) ever_helpful_rate,
     sum((eh and not_crh_now)::int) * 1.0 / nullif(sum(eh::int), 0) lost_rate
