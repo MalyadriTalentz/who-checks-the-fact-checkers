@@ -62,7 +62,7 @@ ABSTRACT = (
     f"mismatched pages support, though they caught few notes with one number altered. Here AI notes held up: they cited a readable source far more often, and were unsupported no "
     f"more often than human notes ({pc(H3['primary_agree_set']['ai'])} vs {pc(H3['primary_agree_set']['human'])}, difference "
     f"not statistically clear). Whether raters' own source tags track support could not be settled. Evaluations of AI "
-    f"fact-checkers should count deleted notes, and their sources show no sign of being the weak point."
+    f"fact-checkers should count deleted notes, and their sources show no detectable gap against human notes (provisional)."
 )
 assert 150 <= len(ABSTRACT.split()) <= 250, len(ABSTRACT.split())
 
@@ -264,7 +264,10 @@ para(f"Against the authors' hand labels on {gA['n']} links from 60 notes (DEVIAT
 HO = GD["human_only_H3_random_half"]
 para(f"This triggers a pre-registered gate. PREREG section 6 says that if judge-human kappa at note level is below 0.60, "
      f"H3 and H4 are reported on the human-labelled set only. Note-level kappa was {GD['judgeA_vs_human1_kappa_note']:.2f}, "
-     f"{GD['judgeB_vs_human1_kappa_note']:.2f} and {GD['judgeC_vs_human1_kappa_note']:.2f} for Judges A, B and C. The "
+     f"{GD['judgeB_vs_human1_kappa_note']:.2f} and {GD['judgeC_vs_human1_kappa_note']:.2f} for Judges A, B and C on all 60 notes, and "
+     f"{GD['judgeA_vs_human1_kappa_note_random_half']:.2f}, {GD['judgeB_vs_human1_kappa_note_random_half']:.2f} and "
+     f"{GD['judgeC_vs_human1_kappa_note_random_half']:.2f} on the random half, where a single unsupported note makes kappa "
+     "close to meaningless. The "
      f"human-labelled set is too small to test anything: in its random half, {HO['ai']['unsupported']} of {HO['ai']['notes']} "
      f"AI notes and {HO['human']['unsupported']} of {HO['human']['notes']} human notes were unsupported to the humans, in line "
      "with the judge result but with no power. We therefore keep the judge-based H3 and H4 in the main text and mark them "
@@ -297,7 +300,7 @@ para("An AI system that can withdraw its own failures will look more reliable th
      "notes when only some of them delete. The same trap awaits anyone who audits AI agents from logs the agent can edit. "
      "Platforms should publish deletion rates next to hit rates, and evaluations of AI writers should count every note "
      "submitted, as X's own quota system already does.")
-para("AI fact-checkers' sourcing is not the weak point. On posts where both an AI and a human note reached Helpful status, "
+para("We found no sign that AI fact-checkers' sourcing is the weak point, though this result is provisional. On posts where both an AI and a human note reached Helpful status, "
      "AI notes more often cite something a reader can check, and what they cite is unsupported no more often, within a detectable difference of about 7 points. Worries "
      "that AI notes win ratings with confident but unsupported claims are not borne out in this sample.")
 para("Raters cannot be the only check on sources. With only 26 unsupported notes we could not show that "
@@ -311,7 +314,7 @@ para("Not everything went as planned. H1 held but fell short of the 5-point effe
      "judges had to be swapped mid-sprint. All of these are recorded in DEVIATIONS.md as they happened.")
 h3("Limitations")
 bullet("Judges are LLMs and agree only moderately with each other and with the human labels (kappa 0.22 to 0.37 on the "
-       "random half), below the pre-registered 0.60 gate, so H3 and H4 are provisional (D9). The human check has one labeller on 60 notes, so there is no human-human agreement figure. Results are "
+       "random half, per link; note-level kappa is also below the pre-registered 0.60 gate), so H3 and H4 are provisional (D9). The human check has one labeller on 60 notes, so there is no human-human agreement figure. Results are "
        "given for each judge rule so readers can see how much they move.")
 bullet("The judges miss most altered details (Section 4), so the unsupported rates are lower bounds that cover "
        "sources off the note's main point, not factual slips in dates or figures.")
