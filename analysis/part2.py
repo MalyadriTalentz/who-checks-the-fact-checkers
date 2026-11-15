@@ -139,6 +139,23 @@ if gold_files:
         k = [x for x in gold[0] if x[1]]
         res["gold"][f"judge{name}_vs_human1_kappa_url"] = kappa([url_label(j, x[0], x[1]) for x in k], [gold[0][x] for x in k])
 
+# Negative control (DEVIATIONS D4): share of mismatched note-page pairs a judge still calls support.
+res["negative_control"] = {}
+for name, j in (("A", A), ("B", B), ("C", C)):
+    labs = [json.loads(p.read_text())["label"] for p in pathlib.Path(f"audit/control/{j}").glob("*.json")]
+    if labs:
+        res["negative_control"][name] = {"n": len(labs), "false_support": sum(l in ("SUPPORTS", "PARTIAL") for l in labs),
+                                         "labels": dict(collections.Counter(labs))}
+
+# Extra agreement check (DEVIATIONS D5): the 110 judgments the first Judge B made before its usage limit.
+G = "codex-cli__gpt-5.6-terra"
+gk = [(p.name, json.loads(p.read_text())["label"]) for p in pathlib.Path(f"audit/judgments/{G}").glob("*.json")]
+collapse3 = lambda l: l if l in ("SUPPORTS", "PARTIAL", "DOES_NOT_SUPPORT") else "UNCHECKABLE"
+res["gpt_subset"] = {"n": len(gk)}
+for name, j in (("A", A), ("B", B), ("C", C)):
+    pr = [(collapse3(l), collapse3(json.loads(q.read_text())["label"])) for f, l in gk if (q := pathlib.Path(f"audit/judgments/{j}/{f}")).exists()]
+    res["gpt_subset"][f"kappa_vs_{name}"] = kappa([a for a, b in pr], [b for a, b in pr]); res["gpt_subset"][f"n_vs_{name}"] = len(pr)
+
 # Exploratory: per AI writer, and the list of unsupported notes for human review.
 w = collections.defaultdict(lambda: [0, 0])
 for t, g, n in agree:

@@ -20,7 +20,7 @@ def ask(model, user):
             if model.startswith("adaption/"):  # sponsor API, temperature 0; reads ADAPTION_API_KEY from the environment
                 req = urllib.request.Request("https://api.prod.adaptionlabs.ai/api/v1/responses", json.dumps({
                     "model": model.split("/")[1], "instructions": PROMPT, "input": user, "temperature": 0,
-                    "max_output_tokens": 4000}).encode(), {"Authorization": "Bearer " + os.environ["ADAPTION_API_KEY"],
+                    "max_output_tokens": 16000}).encode(), {"Authorization": "Bearer " + os.environ["ADAPTION_API_KEY"],
                                                            "Content-Type": "application/json"})
                 with urllib.request.urlopen(req, timeout=300) as r:
                     d = json.loads(r.read())

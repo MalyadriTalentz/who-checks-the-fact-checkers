@@ -57,3 +57,12 @@ tabulated by author type:
   of pairs and are reported only as an extra agreement check against Judges A and B.
 
 The primary H3 estimate is still "notes where Judges A and B agree"; A and B are still from two vendors.
+
+## D6 (15 Nov, ~11:05 IST): output-token cap raised for the sponsor-API judges
+
+About a quarter of `qwen3.5-397b` calls returned no answer: the model spent the whole 4,000-token
+output cap on reasoning (`status: incomplete`, `reason: max_output_tokens`). These calls were never
+cached, so no label was recorded for them. The cap is raised to 16,000 for the remaining calls of
+Judges B and C. The prompt, model and temperature are unchanged; judgments already made are kept.
+Pairs that needed more reasoning are therefore judged under the higher cap, which is a known
+difference between the earlier and later calls.
