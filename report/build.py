@@ -267,7 +267,7 @@ para(f"Among notes with a readable source, AI notes were not more often unsuppor
 SN = p2["H3_sensitivity"]; cv = SN["coverage"]; lc = SN["leniency_judgeC"]
 para(f"Three exploratory checks probe H3. The sign does not depend on the judge: used alone, Judges A, B and C give "
      f"{pt(SN['judgeA_alone']['diff'])}, {pt(SN['judgeB_alone']['diff'])} and {pt(SN['judgeC_alone']['diff'])} points. In the "
-     f"hand-labelled links there is no sign that judges are more lenient towards AI notes: of the links the humans "
+     f"hand-labelled links there is no sign that judges are more lenient towards AI notes: of the links the first author "
      f"called unsupported, Judge C passed {lc['ai']['human_dns_judge_supports']} of {lc['ai']['human_dns']} AI-cited and "
      f"{lc['human']['human_dns_judge_supports']} of {lc['human']['human_dns']} human-cited links, if anything more lenient towards human notes, but too few for a test. Coverage is "
      f"the real limit. Using Judge A alone, over all 800 notes it finds {cv['ai']['uns']} AI and {cv['human']['uns']} human notes unsupported, "
@@ -282,13 +282,13 @@ para(f"The judges passed the negative control: none of the three called any of t
      f"were support against no support. On the 110 GPT-5.6 pairs, kappa with Judges A, B and C was {GPT['kappa_vs_A']:.2f}, {GPT['kappa_vs_B']:.2f} and "
      f"{GPT['kappa_vs_C']:.2f}.")
 GD = p2["gold"]; gA, gB, gC = GD["judgeA_dns"], GD["judgeB_dns"], GD["judgeC_dns"]
-para(f"Against the authors' hand labels on {gA['n']} links from 60 notes (DEVIATIONS D7), kappa was "
+para(f"Against the first author's hand labels on {gA['n']} links from 60 notes (DEVIATIONS D7), kappa was "
      f"{GD['judgeA_vs_human1_kappa_url']:.2f} for Judge A, {GD['judgeB_vs_human1_kappa_url']:.2f} for Judge B and "
      f"{GD['judgeC_vs_human1_kappa_url']:.2f} for Judge C, and {GD['judgeA_vs_human1_kappa_url_random_half']:.2f}, "
      f"{GD['judgeB_vs_human1_kappa_url_random_half']:.2f} and {GD['judgeC_vs_human1_kappa_url_random_half']:.2f} on the random "
-     f"half alone. The humans called {gA['human_dns']} links unsupported. Of the {gA['judge_dns']} Judge A called unsupported, "
-     f"{gA['both']} were also unsupported to the humans; the humans rated the other 15 PARTIAL (8) or uncheckable (7), never clear support. The judges lean "
-     f"lenient, not harsh: Judge C called {gC['human_dns_judge_supports']} of the {gC['human_dns']} human-unsupported links "
+     f"half alone. The first author called {gA['human_dns']} links unsupported. Of the {gA['judge_dns']} Judge A called unsupported, "
+     f"{gA['both']} were also unsupported to the first author, who rated the other 15 PARTIAL (8) or uncheckable (7), never clear support. The judges lean "
+     f"lenient, not harsh: Judge C called {gC['human_dns_judge_supports']} of the {gC['human_dns']} links the first author called unsupported "
      f"supported or partly supported, Judge B {gB['human_dns_judge_supports']} and Judge A {gA['human_dns_judge_supports']} "
      "(Judge A's figure is flattered, since half the sheet was chosen from its flags). The H3 rates are therefore best read as "
      "lower bounds, and the judges are weakest exactly where a fact-checker most needs them.")
@@ -300,17 +300,17 @@ para(f"The task is hard for humans too. The second author labelled the same link
      f"({GD['human_human_agree']['confusion'].get('SUPPORTS|PARTIAL', 0)} links) was the first author's SUPPORTS against the "
      f"second's PARTIAL. Judge A agrees with the first author more closely than the two authors agree with each other, while all "
      f"three judges agree less with the stricter second author ({GD['judgeC_vs_human2_kappa_url']:.2f} to "
-     f"{GD['judgeA_vs_human2_kappa_url']:.2f}). Against the pre-registered human consensus, the {GD['consensus_links']} links "
+     f"{GD['judgeA_vs_human2_kappa_url']:.2f}, and near zero on the random half). Against the pre-registered human consensus, the {GD['consensus_links']} links "
      f"both authors labelled alike, kappa was {GD['judgeA_vs_consensus_kappa_url']:.2f}, {GD['judgeB_vs_consensus_kappa_url']:.2f} "
      f"and {GD['judgeC_vs_consensus_kappa_url']:.2f} for Judges A, B and C.")
 para(f"This triggers a pre-registered gate. PREREG section 6 says that if judge-human kappa at note level is below 0.60, "
-     f"H3 and H4 are reported on the human-labelled set only. Note-level kappa was {GD['judgeA_vs_human1_kappa_note']:.2f}, "
+     f"H3 and H4 are reported on the human-labelled set only. Note-level kappa against the first author was {GD['judgeA_vs_human1_kappa_note']:.2f}, "
      f"{GD['judgeB_vs_human1_kappa_note']:.2f} and {GD['judgeC_vs_human1_kappa_note']:.2f} for Judges A, B and C on all 60 notes, and "
      f"{GD['judgeA_vs_human1_kappa_note_random_half']:.2f}, {GD['judgeB_vs_human1_kappa_note_random_half']:.2f} and "
      f"{GD['judgeC_vs_human1_kappa_note_random_half']:.2f} on the random half, where a single unsupported note makes kappa "
-     "close to meaningless. The "
+     "close to meaningless. Against the two authors' consensus the per-link figures above are also below 0.60. The "
      f"human-labelled set is too small to test anything: in its random half, {HO['ai']['unsupported']} of {HO['ai']['notes']} "
-     f"AI notes and {HO['human']['unsupported']} of {HO['human']['notes']} human notes were unsupported to the humans, in line "
+     f"AI notes and {HO['human']['unsupported']} of {HO['human']['notes']} human notes were unsupported to the first author, in line "
      "with the judge result but with no power. We therefore keep the judge-based H3 and H4 in the main text and mark them "
      "provisional (DEVIATIONS D9).")
 para(f"The harder control exposes the judges' limit. In {PC['clean_n']} pairs where one number in the note was changed and the "
@@ -357,8 +357,8 @@ para("Not everything went as planned. H1 held but fell short of the 5-point effe
      "settled with 26 unsupported notes; the judges failed the harder altered-number control; the human check was cut from two labellers on 150 notes to two on 60; and two "
      "judges had to be swapped mid-sprint. All of these are recorded in DEVIATIONS.md as they happened.")
 h3("Limitations")
-bullet("Judges are LLMs and agree only moderately with each other and with the human labels (kappa 0.22 to 0.37 on the "
-       "random half, per link; note-level kappa is also below the pre-registered 0.60 gate), so H3 and H4 are provisional (D9). The human check covers 60 notes, and the two authors agree only moderately with each other (kappa 0.29), so the labels "
+bullet("Judges are LLMs and agree only moderately with each other and with the human labels (per link on the random "
+       "half, kappa 0.22 to 0.37 against the first author and near zero against the second; note-level kappa is also below the pre-registered 0.60 gate), so H3 and H4 are provisional (D9). The human check covers 60 notes, and the two authors agree only moderately with each other (kappa 0.29), so the labels "
        "are not a clean ground truth. Results are "
        "given for each judge rule so readers can see how much they move.")
 bullet("The judges miss most altered details (Section 4), so the unsupported rates are lower bounds that cover "
