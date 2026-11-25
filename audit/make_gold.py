@@ -22,7 +22,10 @@ with open("cache/gold_sheet.csv", "w", newline="") as f:
     w.writerows(rows)
 print(len(chosen), "notes,", len(rows), "rows")
 
-# Enriched short sheet (DEVIATIONS D7): 30 random notes plus 30 notes Judge A flagged DOES_NOT_SUPPORT, mixed blind.
+# Enriched short sheet (DEVIATIONS D7): 30 notes Judge A flagged DOES_NOT_SUPPORT plus 30 other notes, mixed blind.
+# As drawn (DEVIATIONS D10): pick_f takes the first 30 flagged notes in hash order, so every flagged note in pick_r's
+# range goes to pick_f and pick_r is a random sample of UNFLAGGED readable notes only, not of all notes. The design file
+# keeps the key "random" for that stratum; analysis/part2.py weights the two strata back to their population sizes.
 # Only readable (fetched) links, so every row is one a judge also saw. No flag column; order shuffled by hash.
 ok = lambda u: json.loads(pathlib.Path("cache/pages/" + hashlib.sha1(u.encode()).hexdigest() + ".json").read_text())["status"] == "ok"
 flagged = {json.loads(p.read_text())["noteId"] for p in pathlib.Path("audit/judgments/claude-cli__sonnet").glob("*.json")

@@ -56,9 +56,9 @@ ABSTRACT = (
     f"to October 2026 ({f0(G['ai']['notes'])} AI and {f0(G['human']['notes'])} human notes), AI writers deleted "
     f"{pc(G['ai']['deleted'][0])} of their notes against {pc(G['human']['deleted'][0])} for humans. Nearly all of these "
     f"deletions come from seven accounts, six of them high-volume, and jump in April 2026, a pattern consistent with "
-    f"the automatic deletion of likely failures that X describes in its own AI writer. Counting the deleted notes halves the "
-    f"AI advantage in reaching Helpful status, from {pt(H1['diff_surviving_only']['est'])} to {pt(H1['diff_all_notes']['est'])} "
-    f"points, a clear shrinkage but below our pre-registered 5-point margin, and one that may rest on a single operator. Three LLM judges from different vendors "
+    f"the automatic deletion of likely failures that X describes in its own AI writer. Because deleted AI notes were almost "
+    f"never Helpful, counting them as failures mechanically halves the AI advantage in reaching Helpful status, from {pt(H1['diff_surviving_only']['est'])} to {pt(H1['diff_all_notes']['est'])} "
+    f"points, below our pre-registered 5-point margin, and possibly the work of a single operator. Three LLM judges from different vendors "
     f"checked the pages cited by 800 AI and human notes on the same 400 posts; none called any of {NC['A']['n']} deliberately "
     f"mismatched pages support, though they caught few notes with one number altered. AI notes cited a readable source far more often and, among notes with "
     f"a readable source, were unsupported no more often than human notes ({pc(H3['primary_agree_set']['ai'])} vs {pc(H3['primary_agree_set']['human'])}, difference "
@@ -137,7 +137,7 @@ para("All AI-versus-human comparisons above score notes by rater outcomes. None 
 h2("3. Methods")
 para("The hypotheses, definitions, sample size, judge design and analysis were written down and committed before any "
      "outcome data was read (PREREG.md, first commit of the repository). Every later change is logged with its reason in "
-     "DEVIATIONS.md (nine entries, covering judge substitutions forced by missing credit, usage limits and API errors, and the reduced "
+     "DEVIATIONS.md (ten entries, covering judge substitutions forced by missing credit, usage limits and API errors, and the reduced "
      "human check described below).")
 h3("Data and definitions (Part 1)")
 para(f"We used X's public Community Notes release of 14 November 2026: the note, note-status-history and user-enrolment "
@@ -169,7 +169,8 @@ para("Two checks test the judges. In a negative control, 150 notes were each pai
      "stopped by a usage limit, gives an extra agreement check. A harder control, added during the sprint (DEVIATIONS D8), "
      "takes pairs that all three judges called supported, changes one number in the note (years by three, other numbers "
      "by half again) and asks whether the judges notice that the page no longer backs it. Finally, two authors independently hand-labelled "
-     "106 links from 60 notes, half drawn at random and half from notes Judge A flagged, without seeing which was which "
+     "106 links from 60 notes: 30 drawn at random from readable notes Judge A did not flag and 30 from notes it flagged, "
+     "without seeing which was which "
      "or each other's labels (DEVIATIONS D7).")
 h3("Rater blindness (Part 3)")
 para(f"For the same notes we took all {f0(90742)} public ratings and computed, per note, the share of raters who ticked "
@@ -177,7 +178,8 @@ para(f"For the same notes we took all {f0(90742)} public ratings and computed, p
      "notes the judges agree are supported and notes they agree are unsupported, with ±5 points as the equivalence margin.")
 
 h2("4. Results")
-S.append(("box", "Results in brief. (1) Counting deleted notes halves the AI advantage in reaching Helpful status; the "
+S.append(("box", "Results in brief. (1) Counting deleted notes as failures halves the AI advantage in reaching Helpful status, which "
+    "follows directly from AI writers deleting 17% of notes (vs 7%) that were almost never Helpful; the "
     "effect comes from six accounts that delete about a fifth of their notes. (2) Once Helpful, AI notes keep that status "
     "as well as human notes. (3) Among notes with a readable source, AI notes are not more often unsupported, but this "
     "rests on LLM judges that agree only moderately with human labels (two human labellers agreed no better with each "
@@ -194,6 +196,14 @@ para(f"AI writers deleted {pc(G['ai']['deleted'][0])} of their notes; human writ
      f"Counting deleted notes, the advantage is {ci(H1['diff_all_notes'])}. H1 is supported: the shrinkage is "
      f"{ci(H1['survivorship_gap'])} ({fp(holm[0])}, Holm-corrected), about half of the headline advantage, although it falls "
      "short of the 5-point smallest effect of interest fixed in advance.")
+sh = lambda k: G[k]["ever_helpful_surviving_only"][0] - G[k]["ever_helpful_all_notes"][0]
+para(f"The shrinkage follows directly from the deletion rates once deleted notes count as failures. Deleted AI notes were "
+     f"almost never Helpful, so counting them lowers the AI rate by about its surviving rate times its deletion rate "
+     f"({pc(G['ai']['ever_helpful_surviving_only'][0])} × {pc(G['ai']['deleted'][0])} ≈ {100 * G['ai']['ever_helpful_surviving_only'][0] * G['ai']['deleted'][0]:.1f} "
+     f"points; the actual fall is {100 * sh('ai'):.1f}). Humans delete less, and some of their deleted notes had been Helpful, so "
+     f"their rate falls only {100 * sh('human'):.1f} points. The difference is the whole shrinkage. H1 is therefore close to "
+     "arithmetic, not an independent discovery; the substantive findings are how much AI writers delete, which accounts do "
+     "it, and that their deleted notes never received a verdict.")
 para("Counting deleted notes is the like-for-like comparison. A human note that fails stays in the record as "
      "not Helpful and counts against its writer; an AI note withdrawn before its verdict would otherwise vanish from the "
      "denominator. Counting it treats both kinds of writer the same way, which is also how X's quota system scores AI "
@@ -281,37 +291,35 @@ para(f"The judges passed the negative control: none of the three called any of t
      f"{AG['note_AB_kappa']:.2f} per note). The largest group of disagreements (95 of 234) was PARTIAL against SUPPORTS; only 6 "
      f"were support against no support. On the 110 GPT-5.6 pairs, kappa with Judges A, B and C was {GPT['kappa_vs_A']:.2f}, {GPT['kappa_vs_B']:.2f} and "
      f"{GPT['kappa_vs_C']:.2f}.")
-GD = p2["gold"]; gA, gB, gC = GD["judgeA_dns"], GD["judgeB_dns"], GD["judgeC_dns"]
+GW = p2["gold_weighted"]; GD = p2["gold"]; gA, gB, gC = GD["judgeA_dns"], GD["judgeB_dns"], GD["judgeC_dns"]
 para(f"Against the first author's hand labels on {gA['n']} links from 60 notes (DEVIATIONS D7), kappa was "
      f"{GD['judgeA_vs_human1_kappa_url']:.2f} for Judge A, {GD['judgeB_vs_human1_kappa_url']:.2f} for Judge B and "
-     f"{GD['judgeC_vs_human1_kappa_url']:.2f} for Judge C, and {GD['judgeA_vs_human1_kappa_url_random_half']:.2f}, "
-     f"{GD['judgeB_vs_human1_kappa_url_random_half']:.2f} and {GD['judgeC_vs_human1_kappa_url_random_half']:.2f} on the random "
-     f"half alone. The first author called {gA['human_dns']} links unsupported. Of the {gA['judge_dns']} Judge A called unsupported, "
+     f"{GD['judgeC_vs_human1_kappa_url']:.2f} for Judge C. The sheet is a two-stratum sample (DEVIATIONS D10): the "
+     f"\"random\" half was drawn only from notes Judge A did not flag, so it is not a random sample of all notes. Weighting each "
+     f"stratum back to its share of readable notes ({GW['flagged_population']} flagged, {GW['unflagged_population']} not), kappa "
+     f"is {GW['judgeA_vs_human1_kappa_url']:.2f}, {GW['judgeB_vs_human1_kappa_url']:.2f} and {GW['judgeC_vs_human1_kappa_url']:.2f}. The first author called {gA['human_dns']} links unsupported. Of the {gA['judge_dns']} Judge A called unsupported, "
      f"{gA['both']} were also unsupported to the first author, who rated the other 15 PARTIAL (8) or uncheckable (7), never clear support. The judges lean "
      f"lenient, not harsh: Judge C called {gC['human_dns_judge_supports']} of the {gC['human_dns']} links the first author called unsupported "
      f"supported or partly supported, Judge B {gB['human_dns_judge_supports']} and Judge A {gA['human_dns_judge_supports']} "
      "(Judge A's figure is flattered, since half the sheet was chosen from its flags). The H3 rates are therefore best read as "
      "lower bounds, and the judges are weakest exactly where a fact-checker most needs them.")
-HO = GD["human_only_H3_random_half"]
 para(f"The task is hard for humans too. The second author labelled the same links independently; the two agreed on "
      f"{GD['human_human_agree']['exact']} of {GD['human_human_agree']['n']} (kappa {GD['human_human_kappa_url']:.2f}; "
-     f"{GD['human_human_kappa_url_random_half']:.2f} on the random half), rising to {GD['human_human_kappa_dns_vs_rest']:.2f} when "
+     f"{GW['human_human_kappa_url']:.2f} weighted to all readable notes), rising to {GD['human_human_kappa_dns_vs_rest']:.2f} when "
      f"only \"does not support\" is separated from everything else, the distinction H3 rests on. The commonest disagreement "
      f"({GD['human_human_agree']['confusion'].get('SUPPORTS|PARTIAL', 0)} links) was the first author's SUPPORTS against the "
      f"second's PARTIAL. Judge A agrees with the first author more closely than the two authors agree with each other, while all "
      f"three judges agree less with the stricter second author ({GD['judgeC_vs_human2_kappa_url']:.2f} to "
-     f"{GD['judgeA_vs_human2_kappa_url']:.2f}, and near zero on the random half). Against the pre-registered human consensus, the {GD['consensus_links']} links "
+     f"{GD['judgeA_vs_human2_kappa_url']:.2f}, and near zero once weighted, at {GW['judgeA_vs_human2_kappa_url']:.2f} to {GW['judgeC_vs_human2_kappa_url']:.2f}). Against the pre-registered human consensus, the {GD['consensus_links']} links "
      f"both authors labelled alike, kappa was {GD['judgeA_vs_consensus_kappa_url']:.2f}, {GD['judgeB_vs_consensus_kappa_url']:.2f} "
      f"and {GD['judgeC_vs_consensus_kappa_url']:.2f} for Judges A, B and C.")
 para(f"This triggers a pre-registered gate. PREREG section 6 says that if judge-human kappa at note level is below 0.60, "
      f"H3 and H4 are reported on the human-labelled set only. Note-level kappa against the first author was {GD['judgeA_vs_human1_kappa_note']:.2f}, "
-     f"{GD['judgeB_vs_human1_kappa_note']:.2f} and {GD['judgeC_vs_human1_kappa_note']:.2f} for Judges A, B and C on all 60 notes, and "
-     f"{GD['judgeA_vs_human1_kappa_note_random_half']:.2f}, {GD['judgeB_vs_human1_kappa_note_random_half']:.2f} and "
-     f"{GD['judgeC_vs_human1_kappa_note_random_half']:.2f} on the random half, where a single unsupported note makes kappa "
-     "close to meaningless. Against the two authors' consensus the per-link figures above are also below 0.60. The "
-     f"human-labelled set is too small to test anything: in its random half, {HO['ai']['unsupported']} of {HO['ai']['notes']} "
-     f"AI notes and {HO['human']['unsupported']} of {HO['human']['notes']} human notes were unsupported to the first author, in line "
-     "with the judge result but with no power. We therefore keep the judge-based H3 and H4 in the main text and mark them "
+     f"{GD['judgeB_vs_human1_kappa_note']:.2f} and {GD['judgeC_vs_human1_kappa_note']:.2f} for Judges A, B and C on the 60 notes, "
+     f"and {GW['judgeA_vs_human1_kappa_note']:.2f}, {GW['judgeB_vs_human1_kappa_note']:.2f} and {GW['judgeC_vs_human1_kappa_note']:.2f} "
+     "weighted to all readable notes. Against the two authors' consensus the per-link figures above are also below 0.60. The "
+     "human-labelled set is too small to test anything: its unflagged stratum holds only seven human notes, so a single "
+     "note can swing a weighted estimate by 15 points. We therefore keep the judge-based H3 and H4 in the main text and mark them "
      "provisional (DEVIATIONS D9).")
 para(f"The harder control exposes the judges' limit. In {PC['clean_n']} pairs where one number in the note was changed and the "
      f"new number appears nowhere on the page, Judge A flagged {PC['clean_caught_A']}, Judge B {PC['clean_caught_B']} and "
@@ -357,8 +365,8 @@ para("Not everything went as planned. H1 held but fell short of the 5-point effe
      "settled with 26 unsupported notes; the judges failed the harder altered-number control; the human check was cut from two labellers on 150 notes to two on 60; and two "
      "judges had to be swapped mid-sprint. All of these are recorded in DEVIATIONS.md as they happened.")
 h3("Limitations")
-bullet("Judges are LLMs and agree only moderately with each other and with the human labels (per link on the random "
-       "half, kappa 0.22 to 0.37 against the first author and near zero against the second; note-level kappa is also below the pre-registered 0.60 gate), so H3 and H4 are provisional (D9). The human check covers 60 notes, and the two authors agree only moderately with each other (kappa 0.29), so the labels "
+bullet("Judges are LLMs and agree only moderately with each other and with the human labels (per link, weighted "
+       "to all readable notes, kappa 0.25 to 0.41 against the first author and near zero against the second; note-level kappa is also below the pre-registered 0.60 gate), so H3 and H4 are provisional (D9). The human check covers 60 notes, and the two authors agree only moderately with each other (kappa 0.29), so the labels "
        "are not a clean ground truth. Results are "
        "given for each judge rule so readers can see how much they move.")
 bullet("The judges miss most altered details (Section 4), so the unsupported rates are lower bounds that cover "
@@ -420,12 +428,13 @@ para("Personal data: all data is public. X publishes writer and rater ids only i
      "ratings. No one was contacted and nothing was posted to X.")
 
 h2("Appendix B. Pre-registration and deviations")
-para("PREREG.md was committed before any outcome was read. DEVIATIONS.md records nine changes: D1 a rule for the "
+para("PREREG.md was committed before any outcome was read. DEVIATIONS.md records ten changes: D1 a rule for the "
      "collaborative-note account; D2 judges run through command-line clients after the planned paid API had no credit; D3 a "
      "third judge; D4 the negative control (added, not replacing anything); D5 Judge B replaced after a usage limit, with its "
      "110 judgments kept as a check; D6 a higher token cap and streamed replies for the sponsor-API judges; D7 the reduced, "
      "enriched human check; D8 a harder altered-number control (added); D9 the judge-human kappa gate was triggered but H3 and "
-     "H4 stay judge-based, because the human-labelled set is too small to test them, and are marked provisional. No hypothesis "
+     "H4 stay judge-based, because the human-labelled set is too small to test them, and are marked provisional; D10 a correction after judging: the human check's \"random\" half was drawn only from "
+     "notes Judge A did not flag, so agreement is now weighted by stratum. No hypothesis "
      "or outcome definition was changed; D9 is the one departure from the planned primary analysis.")
 
 h2("Appendix C. Per-writer reliability (ten largest AI writers)")

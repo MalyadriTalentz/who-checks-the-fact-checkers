@@ -138,7 +138,7 @@
    106
   ],
   "human_human_kappa_url": 0.2918157957528036,
-  "human_human_kappa_url_random_half": 0.20973990038738244,
+  "human_human_kappa_url_unflagged_stratum": 0.20973990038738244,
   "human_human_agree": {
    "n": 106,
    "exact": 50,
@@ -163,15 +163,15 @@
   "consensus_links": 50,
   "judgeA_vs_consensus_kappa_url": 0.4834148994018488,
   "judgeA_vs_human2_kappa_url": 0.24589787722317843,
-  "judgeA_vs_human2_kappa_url_random_half": -0.04139072847682117,
+  "judgeA_vs_human2_kappa_url_unflagged_stratum": -0.04139072847682117,
   "judgeB_vs_consensus_kappa_url": 0.4237820848611839,
   "judgeB_vs_human2_kappa_url": 0.21639784946236562,
-  "judgeB_vs_human2_kappa_url_random_half": -0.012909632571995993,
+  "judgeB_vs_human2_kappa_url_unflagged_stratum": -0.012909632571995993,
   "judgeC_vs_consensus_kappa_url": 0.26431949553336836,
   "judgeC_vs_human2_kappa_url": 0.1248710010319917,
-  "judgeC_vs_human2_kappa_url_random_half": 0.014370664023785928,
+  "judgeC_vs_human2_kappa_url_unflagged_stratum": 0.014370664023785928,
   "judgeA_vs_human1_kappa_url": 0.5050989064995699,
-  "judgeA_vs_human1_kappa_url_random_half": 0.36645962732919257,
+  "judgeA_vs_human1_kappa_url_unflagged_stratum": 0.36645962732919257,
   "judgeA_dns": {
    "human_dns": 23,
    "judge_dns": 35,
@@ -181,7 +181,7 @@
    "n": 106
   },
   "judgeB_vs_human1_kappa_url": 0.40215792054928884,
-  "judgeB_vs_human1_kappa_url_random_half": 0.3008910212474296,
+  "judgeB_vs_human1_kappa_url_unflagged_stratum": 0.3008910212474296,
   "judgeB_dns": {
    "human_dns": 23,
    "judge_dns": 25,
@@ -191,7 +191,7 @@
    "n": 106
   },
   "judgeC_vs_human1_kappa_url": 0.32059657340071496,
-  "judgeC_vs_human1_kappa_url_random_half": 0.21747831887925292,
+  "judgeC_vs_human1_kappa_url_unflagged_stratum": 0.21747831887925292,
   "judgeC_dns": {
    "human_dns": 23,
    "judge_dns": 11,
@@ -207,12 +207,12 @@
    "UNCHECKABLE": 16
   },
   "judgeA_vs_human1_kappa_note": 0.5625000000000001,
-  "judgeA_vs_human1_kappa_note_random_half": 0.0,
+  "judgeA_vs_human1_kappa_note_unflagged_stratum": 0.0,
   "judgeB_vs_human1_kappa_note": 0.4352159468438539,
-  "judgeB_vs_human1_kappa_note_random_half": 0.2105263157894734,
+  "judgeB_vs_human1_kappa_note_unflagged_stratum": 0.2105263157894734,
   "judgeC_vs_human1_kappa_note": 0.3043478260869564,
-  "judgeC_vs_human1_kappa_note_random_half": -0.06382978723404263,
-  "human_only_H3_random_half": {
+  "judgeC_vs_human1_kappa_note_unflagged_stratum": -0.06382978723404263,
+  "human_only_H3_unflagged_stratum": {
    "ai": {
     "notes": 23,
     "unsupported": 0,
@@ -223,6 +223,27 @@
     "unsupported": 1,
     "supported": 5
    }
+  }
+ },
+ "gold_weighted": {
+  "flagged_population": 40,
+  "unflagged_population": 448,
+  "flagged_sampled": 30,
+  "unflagged_sampled": 30,
+  "judgeA_vs_human1_kappa_url": 0.4114361109683167,
+  "judgeA_vs_human2_kappa_url": 0.027825546957103237,
+  "judgeB_vs_human1_kappa_url": 0.3369435005554341,
+  "judgeB_vs_human2_kappa_url": 0.03502481987837404,
+  "judgeC_vs_human1_kappa_url": 0.24920640551648995,
+  "judgeC_vs_human2_kappa_url": 0.03520919182335116,
+  "human_human_kappa_url": 0.23184373230072639,
+  "human_human_agree_share": 0.4544873842222932,
+  "judgeA_vs_human1_kappa_note": 0.48998638926696464,
+  "judgeB_vs_human1_kappa_note": 0.3921402791850547,
+  "judgeC_vs_human1_kappa_note": 0.1279116595251137,
+  "human1_unsupported_share": {
+   "ai": 0.02586844050258684,
+   "human": 0.23270440251572325
   }
  },
  "H3_sensitivity": {

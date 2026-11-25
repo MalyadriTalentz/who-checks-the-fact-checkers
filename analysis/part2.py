@@ -137,7 +137,7 @@ if gold_files:
         res["gold"]["human_human_kappa_url"] = kappa([gold[0][x] for x in k], [gold[1][x] for x in k])
         rnd2 = set(json.load(open("audit/gold_v2_design.json"))["random"])
         kr2 = [x for x in k if x[0] in rnd2]
-        res["gold"]["human_human_kappa_url_random_half"] = kappa([gold[0][x] for x in kr2], [gold[1][x] for x in kr2])
+        res["gold"]["human_human_kappa_url_unflagged_stratum"] = kappa([gold[0][x] for x in kr2], [gold[1][x] for x in kr2])
         res["gold"]["human_human_agree"] = {"n": len(k), "exact": sum(gold[0][x] == gold[1][x] for x in k),
                                             "confusion": dict(collections.Counter(f"{gold[0][x]}|{gold[1][x]}" for x in k))}
         dns = lambda l: "DNS" if l == "DOES_NOT_SUPPORT" else "other"  # descriptive: agreement on the label H3 rests on
@@ -147,14 +147,14 @@ if gold_files:
         for name, j in (("A", A), ("B", B), ("C", C)):
             res["gold"][f"judge{name}_vs_consensus_kappa_url"] = kappa([url_label(j, x[0], x[1]) for x in cons], [gold[0][x] for x in cons])
             res["gold"][f"judge{name}_vs_human2_kappa_url"] = kappa([url_label(j, x[0], x[1]) for x in k], [gold[1][x] for x in k])
-            res["gold"][f"judge{name}_vs_human2_kappa_url_random_half"] = kappa([url_label(j, x[0], x[1]) for x in kr2], [gold[1][x] for x in kr2])
+            res["gold"][f"judge{name}_vs_human2_kappa_url_unflagged_stratum"] = kappa([url_label(j, x[0], x[1]) for x in kr2], [gold[1][x] for x in kr2])
     for name, j in (("A", A), ("B", B), ("C", C)):
         k = [x for x in gold[0] if x[1]]
         res["gold"][f"judge{name}_vs_human1_kappa_url"] = kappa([url_label(j, x[0], x[1]) for x in k], [gold[0][x] for x in k])
         rnd = set(json.load(open("audit/gold_v2_design.json"))["random"]) if pathlib.Path("audit/gold_v2_design.json").exists() else set()
-        kr = [x for x in k if x[0] in rnd]  # random half only: unbiased by the flagged over-sample (DEVIATIONS D7)
+        kr = [x for x in k if x[0] in rnd]  # unflagged stratum only: drawn from notes Judge A did not flag (DEVIATIONS D10)
         if kr:
-            res["gold"][f"judge{name}_vs_human1_kappa_url_random_half"] = kappa([url_label(j, x[0], x[1]) for x in kr], [gold[0][x] for x in kr])
+            res["gold"][f"judge{name}_vs_human1_kappa_url_unflagged_stratum"] = kappa([url_label(j, x[0], x[1]) for x in kr], [gold[0][x] for x in kr])
         # Per-label view of DOES_NOT_SUPPORT: how often the judge's flag matches the human's, and how many human flags it finds.
         jd = {x: url_label(j, x[0], x[1]) for x in k}
         hd = [x for x in k if gold[0][x] == "DOES_NOT_SUPPORT"]; jdn = [x for x in k if jd[x] == "DOES_NOT_SUPPORT"]
@@ -169,12 +169,46 @@ if gold_files:
     for (nid, u), l in gold[0].items(): hn.setdefault(nid, []).append(l)
     hn = {nid: note_label(ls) for nid, ls in hn.items()}
     for name in ("A", "B", "C"):
-        for tag, ids in (("", list(hn)), ("_random_half", [i for i in hn if i in rnd])):
+        for tag, ids in (("", list(hn)), ("_unflagged_stratum", [i for i in hn if i in rnd])):
             ids = [i for i in ids if i in notes]
             res["gold"][f"judge{name}_vs_human1_kappa_note{tag}"] = kappa([notes[i][name] for i in ids], [hn[i] for i in ids])
-    res["gold"]["human_only_H3_random_half"] = {g: {"notes": sum(notes[i]["grp"] == g for i in hn if i in rnd and i in notes),
+    res["gold"]["human_only_H3_unflagged_stratum"] = {g: {"notes": sum(notes[i]["grp"] == g for i in hn if i in rnd and i in notes),
         "unsupported": sum(notes[i]["grp"] == g and hn[i] == "unsupported" for i in hn if i in rnd and i in notes),
         "supported": sum(notes[i]["grp"] == g and hn[i] == "supported" for i in hn if i in rnd and i in notes)} for g in ("ai", "human")}
+
+# The sheet is a two-stratum sample, not "half random" (DEVIATIONS D10): 30 of the readable notes Judge A flagged, and
+# 30 of the readable notes it did not flag (make_gold.py drew the second half after removing flagged notes in its range).
+# Population-weighted estimates weight each note by stratum size / 30 so they describe all readable sampled notes.
+if gold_files:
+    design = json.load(open("audit/gold_v2_design.json"))
+    flagged_all = {nid for nid in notes for u in dict.fromkeys(text[nid]["urls"])
+                   if page(u)["status"] == "ok" and url_label(A, nid, u) == "DOES_NOT_SUPPORT"}
+    readable_all = {nid for nid in notes if any(page(u)["status"] == "ok" for u in dict.fromkeys(text[nid]["urls"]))}
+    nF, nU = len(flagged_all & readable_all), len(readable_all - flagged_all)
+    assert not set(design["random"]) & flagged_all and set(design["flagged"]) <= flagged_all
+    wt = {**{n: nF / len(design["flagged"]) for n in design["flagged"]}, **{n: nU / len(design["random"]) for n in design["random"]}}
+
+    def wkappa(pairs):  # pairs: (weight, x, y)
+        W = sum(w for w, _, _ in pairs); cats = {c for _, x, y in pairs for c in (x, y)}
+        po = sum(w for w, x, y in pairs if x == y) / W
+        pe = sum((sum(w for w, x, _ in pairs if x == c) / W) * (sum(w for w, _, y in pairs if y == c) / W) for c in cats)
+        return (po - pe) / (1 - pe)
+    links = [x for x in gold[0] if x[0] in wt]
+    gw = res["gold_weighted"] = {"flagged_population": nF, "unflagged_population": nU,
+                                 "flagged_sampled": len(design["flagged"]), "unflagged_sampled": len(design["random"])}
+    for name, j in (("A", A), ("B", B), ("C", C)):
+        for h, gd in enumerate(gold, 1):
+            gw[f"judge{name}_vs_human{h}_kappa_url"] = wkappa([(wt[x[0]], url_label(j, x[0], x[1]), gd[x]) for x in links if x in gd])
+    if len(gold) >= 2:
+        gw["human_human_kappa_url"] = wkappa([(wt[x[0]], gold[0][x], gold[1][x]) for x in links if x in gold[1]])
+        gw["human_human_agree_share"] = sum(wt[x[0]] for x in links if gold[0][x] == gold[1].get(x)) / sum(wt[x[0]] for x in links)
+    hn1 = {}
+    for (nid, u), l in gold[0].items(): hn1.setdefault(nid, []).append(l)
+    hn1 = {nid: note_label(ls) for nid, ls in hn1.items() if nid in wt}
+    for name in ("A", "B", "C"):
+        gw[f"judge{name}_vs_human1_kappa_note"] = wkappa([(wt[i], notes[i][name], hn1[i]) for i in hn1])
+    gw["human1_unsupported_share"] = {g: sum(wt[i] for i in hn1 if notes[i]["grp"] == g and hn1[i] == "unsupported")
+                                      / sum(wt[i] for i in hn1 if notes[i]["grp"] == g) for g in ("ai", "human")}
 
 # Exploratory H3 sensitivity (not pre-registered, added after the final review).
 sens = res["H3_sensitivity"] = {}

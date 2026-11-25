@@ -129,3 +129,15 @@ human-human kappa PREREG section 8 planned. Reported in `results/part2.json` und
 human-human kappa, kappa on "does not support" vs the rest (descriptive, added after seeing the
 first kappa), judge vs second labeller, and judge vs the human consensus (links both label alike),
 which is the comparison PREREG section 6 names. The human-only H3 in D9 still uses labeller 1.
+
+## D10 (25 Nov, after judging feedback): the human-check "random" half was drawn only from unflagged notes
+
+A judge pointed out that `audit/make_gold.py` draws the "random" half after taking the first 30
+flagged notes in hash order, so every flagged note in its range went to the flagged half. Checked:
+the "random" half holds 0 of the 40 readable notes Judge A flagged; it is a random sample of the 448
+readable notes Judge A did not flag. Earlier report versions called it the random half and gave
+kappas on it as if unbiased; those figures describe the unflagged stratum only. The sheet is now
+treated as the two-stratum sample it is, with each stratum weighted to its population (40 and 448)
+in `results/part2.json` under `gold_weighted`. The labels and the sampling code are unchanged; the
+labelled sheet was drawn by this code. Also clarified in the report, from the same feedback: the H1
+shrinkage follows arithmetically from the deletion rates once deleted notes count as failures.
